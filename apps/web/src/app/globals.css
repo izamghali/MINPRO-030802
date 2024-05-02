@@ -1,3 +1,17 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+    .flex-center {
+        @apply flex justify-center items-center;
+    }
+
+    .social-hover {
+        @apply opacity-70 hover:opacity-100 duration-200 cursor-pointer;
+    }
+
+    .sub-heading-mb {
+        @apply space-y-4;
+    }
+}

@@ -9,8 +9,23 @@ content: [
     "./src/**/*.{js,ts,jsx,tsx,mdx}",
     ],
   theme: {
-    extend: {},
+    screens: {
+        'sm': '550px', // min-width: 550px
+        'md': '768px',
+        'lg': '1024px',
+        'xl': '1280px',
+        '2xl': '1536px',
+    },
+    extend: {
+        colors: {
+            // accent: '#FFE9B9',
+            accent: '#FDE047',
+        },
+    },
   },
   plugins: [require("daisyui")],
+  daisyui: {
+    themes: ['light']
+  }
 }
 
