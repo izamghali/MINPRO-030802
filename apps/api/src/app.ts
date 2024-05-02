@@ -6,16 +6,17 @@ import express, {
   Response,
   NextFunction,
   Router,
+  Application,
 } from 'express';
 import cors from 'cors';
 import { PORT } from './config';
 import { SampleRouter } from './routers/sample.router';
 
 export default class App {
-  private app: Express;
+  private app: Application;
 
   constructor() {
-    this.app = express();
+    this.app  = express();
     this.configure();
     this.routes();
     this.handleError();
