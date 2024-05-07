@@ -2,20 +2,51 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider = "prisma-client-js"
+    provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "mysql"
-  url      = env("DATABASE_URL")
+    provider = "mysql"
+    url      = env("DATABASE_URL")
 }
 
-model Sample {
-  id        Int      @id @default(autoincrement())
-  name      String
-  code      String   @unique
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+enum Gender {
+    MALE
+    FEMALE
+}
 
-  @@map("samples") // if you want to use snake_case format
+model Promotor {
+    id            Int      @id @default(autoincrement())
+    promotor_name String
+    email         String
+    password      String
+    domain        String
+    imgUrl        String   @db.LongText
+    jwt           String   @db.LongText
+    createdAt     DateTime
+}
+
+model User {
+    id           Int      @id @default(autoincrement())
+    username     String   @unique
+    email        String   @unique
+    password     String
+    gender       Gender
+    dob          DateTime
+    domain       String
+    usedReferral Boolean?  @default(false)
+    referralCode String?   @unique
+    imgUrl       String?   @db.LongText
+    // jwt          String   @db.LongText
+    createdAt    DateTime @default(now())
+    Balance      Balance[]
+}
+
+model Balance {
+    id       Int      @id @default(autoincrement())
+    user     User     @relation(fields: [userID], references: [id])
+    userID   Int      
+    balance  Int 
+    expireAt DateTime?
+    issuedAt DateTime @db.Timestamp()
 }
