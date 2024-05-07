@@ -18,4 +18,12 @@
     .is-active {
         @apply bg-slate-800 text-slate-50;
     }
+
+    .sign-up-form-outer-label {
+        @apply absolute sm:static left-0 -bottom-8 p-0;
+    }
+
+    .sign-up-form-parent-label {
+        @apply relative mb-6 sm:mb-0;
+    }
 }

@@ -2,7 +2,7 @@ import React from "react"
 
 export default function Hero() {
 
-    const srcTest = 'https://firebasestorage.googleapis.com/v0/b/image-gallery-3010c.appspot.com/o/ocean.webm?alt=media&token=4f3df065-dd1b-4e93-9353-082355f0c2ae'
+    const srcTest = 'https://firebasestorage.googleapis.com/v0/b/image-gallery-3010c.appspot.com/o/test.mp4?alt=media&token=cc461407-d7ab-4b0d-8d46-d66b01383398'
 
     return (
         <div className=" w-full h-96 overflow-hidden relative">

@@ -3,7 +3,6 @@ import React from "react"
 import Drawer from "@/components/Drawer"
 import SidebarMenuBtn from "@/components/SidebarMenuBtn"
 import { eventsTest } from "@/helpers/dummyData";
-import Card from "@/components/Card";
 
 export default function Template({ children }: { children: any }) {
 
@@ -24,31 +23,31 @@ export default function Template({ children }: { children: any }) {
                 classNameContent="mt-20"
                 classNameChildrenMenu="translate-y-[5rem]"
                 childrenMenu={
-                    <ul className={`menu p-4 w-80 min-h-full bg-base-200 text-base-content`}>
-                        <h3 className="font-bold mb-10">Drawer</h3>
-                        <SidebarMenuBtn
-                            redirect="/dashboard/events"
-                            className="active:bg-transparent"
-                            func={handleIsActive}
-                            buttonID="events-btn"
-                        >
-                            {/* NOTE:  async/await fetching number of events */}
-                            <div className="flex items-center justify-between w-full group">
-                                <div className="flex items-center gap-2">
-                                    { eventSvg }
-                                    Events
-                                </div>
-                                { testNumberEvent > 99 ? '99+' : testNumberEvent }
+                <ul className={`menu p-4 w-80 min-h-full bg-base-200 text-base-content`}>
+                    <h3 className="font-bold mb-10">Drawer</h3>
+                    <SidebarMenuBtn
+                        redirect="/dashboard/events"
+                        className="active:bg-transparent"
+                        func={handleIsActive}
+                        buttonID="events-btn"
+                    >
+                        {/* NOTE:  async/await fetching number of events */}
+                        <div className="flex items-center justify-between w-full group">
+                            <div className="flex items-center gap-2">
+                                { eventSvg }
+                                Events
                             </div>
-                        </SidebarMenuBtn>
-                        <SidebarMenuBtn
-                            text="Analytics" svg={analyticsSvg}
-                            redirect="/dashboard/events"
-                            className="active:bg-transparent"
-                            func={handleIsActive}
-                            buttonID="analytics-btn"
-                        />
-                    </ul>
+                            { testNumberEvent > 99 ? '99+' : testNumberEvent }
+                        </div>
+                    </SidebarMenuBtn>
+                    <SidebarMenuBtn
+                        text="Analytics" svg={analyticsSvg}
+                        redirect="/dashboard/analytics"
+                        className="active:bg-transparent"
+                        func={handleIsActive}
+                        buttonID="analytics-btn"
+                    />
+                </ul>
                 }
             >
                 { children }

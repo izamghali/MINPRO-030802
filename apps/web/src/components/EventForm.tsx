@@ -1,5 +1,4 @@
 import React, { useRef } from "react"
-import Button from "./Button"
 import { showCloseModal } from "@/helpers/modal.function"
 
 export default function EventForm({ className }: { className: string }) {
@@ -88,6 +87,7 @@ export default function EventForm({ className }: { className: string }) {
                     </label>
                     
                     <textarea onChange={handleForm} ref={detailsRef} className="textarea textarea-bordered" placeholder="Details"></textarea>
+
                     <select ref={locationRef} onChange={handleForm} className="select select-bordered w-full max-w-xs">
                         <option id="location-placeholder">Location</option>
                         {
@@ -96,6 +96,7 @@ export default function EventForm({ className }: { className: string }) {
                             })
                         }
                     </select>
+                    
                     <label className="input input-bordered flex items-center gap-2">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="w-4 h-4 opacity-70" viewBox="0 0 16 16"><path d="M11 6.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5zm-3 0a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5zm-5 3a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5zm3 0a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5z"/><path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5M1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4z"/></svg>
                         <input min="2024-05-01" ref={dateRef} onChange={handleForm} type="date" className="grow" placeholder="Date & Time" />
