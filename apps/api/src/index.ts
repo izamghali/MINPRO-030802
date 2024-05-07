@@ -1,10 +1,16 @@
-import App from './app';
+import express, { Application, Request, Response } from 'express';
+import cors from 'cors'
+import apiRouter from './router';
 
-const main = () => {
-  // init db here
+const app: Application = express()
 
-  const app = new App();
-  app.start();
-};
+const PORT = 8000;
 
-main();
+app.use(express.json());
+app.use(cors())
+
+app.use('/api', apiRouter)
+
+app.listen(PORT, () => {
+    console.log(`[API] local => http://localhost:${PORT}/api`)
+})
