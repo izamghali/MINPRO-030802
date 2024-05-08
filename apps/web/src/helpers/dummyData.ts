@@ -1,3 +1,7 @@
+export const isUserLoggedNavbarHome = false;
+export const isUserLoggedNavbar = false;
+export const isUserDrawer = false;
+
 export let eventsTest = [
     {
         title: 'skydiving',
@@ -236,4 +240,3 @@ export const countriesArray = [
     "Zambia",
     "Zimbabwe"
 ];
-  
