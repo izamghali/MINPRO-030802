@@ -1,6 +1,6 @@
 export const isUserLoggedNavbarHome = false;
 export const isUserLoggedNavbar = false;
-export const isUserDrawer = false;
+export const isUserDrawer = true;
 
 export let eventsTest = [
     {
