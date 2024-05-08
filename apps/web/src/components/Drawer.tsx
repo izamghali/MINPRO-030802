@@ -19,7 +19,7 @@ export default function Drawer({
             <div className={`drawer-content  ${classNameContent}  `}>
                 { children }
             </div> 
-            <div className={`drawer-side ${classNameChildrenMenu}`}>
+            <div className={`drawer-side ${classNameChildrenMenu} `}>
                 <label htmlFor="drawer" aria-label="close sidebar" className="drawer-overlay"></label> 
                 { childrenMenu }
             </div>
