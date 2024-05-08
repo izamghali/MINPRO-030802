@@ -20,7 +20,7 @@ content: [
         colors: {
             // accent: '#FFE9B9',
             accent: '#FDE047',
-        },
+        }
     },
   },
   plugins: [require("daisyui")],
