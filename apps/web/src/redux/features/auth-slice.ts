@@ -16,7 +16,7 @@ export const authSlice = createSlice({
     name: 'auth',
     initialState,
     reducers: { // collection of reducers of authSlice
-        testAut: () => {
+        testAuth: () => {
             return initialState;
         }
     }
