@@ -15,38 +15,132 @@ enum Gender {
     FEMALE
 }
 
-model Promotor {
+enum Status {
+    PENDING
+    PAID
+    CANCELLED
+}
+
+model Organizer {
     id            Int      @id @default(autoincrement())
-    promotor_name String
-    email         String
+    organizerName String   @unique // NOTE:  organzier can't have the same name
+    isOrg         Boolean  @default(true)
+    accountActive Boolean  @default(false)
+    email         String   @unique // NOTE:  organzier can't have the same email
     password      String
     domain        String
-    imgUrl        String   @db.LongText
+    imgUrl        String?  @db.LongText
     jwt           String   @db.LongText
-    createdAt     DateTime
+    createdAt     DateTime @default(now())
+    Event         Event[] // NOTE:  organizer can create many events
+    Promo         Promo[] // NOTE:  organizer can create many promos
 }
 
 model User {
-    id           Int      @id @default(autoincrement())
-    username     String   @unique
-    email        String   @unique
-    password     String
-    gender       Gender
-    dob          DateTime
-    domain       String
-    usedReferral Boolean?  @default(false)
-    referralCode String?   @unique
-    imgUrl       String?   @db.LongText
-    // jwt          String   @db.LongText
-    createdAt    DateTime @default(now())
-    Balance      Balance[]
+    id            Int        @id @default(autoincrement())
+    isOrg         Boolean    @default(false)
+    accountActive Boolean    @default(false)
+    username      String     @unique // NOTE:  each username is different
+    email         String     @unique //  NOTE:  each email is different
+    password      String
+    gender        Gender
+    dob           DateTime
+    domain        String
+    usedReferral  Boolean?   @default(false)
+    referralCode  String?    @unique
+    imgUrl        String?    @db.LongText
+    jwt           String     @db.LongText
+    createdAt     DateTime   @default(now())
+    Balance       Balance[] // NOTE:  user can have multiple balance
+    Review        Review[] //  NOTE:  user can write many reviews
+    Wishlist      Wishlist[]
+}
+
+model Event {
+    id             Int        @id @default(autoincrement())
+    organizerID    Int        @unique
+    organizer      Organizer  @relation(fields: [organizerID], references: [id])
+    eventName      String
+    location       String
+    date           DateTime
+    eventType      String // FIX:  you might wanna change this to ENUM
+    category       String // FIX:  you might wanna change this to ENUM
+    price          BigInt     @default(0)
+    details        String     @db.LongText
+    availableSeats Int
+    thumbnailUrl   String?    @db.LongText
+    createdAt      DateTime   @default(now())
+    Media          Media[]
+    Review         Review[]
+    Wishlist       Wishlist[]
 }
 
 model Balance {
-    id       Int      @id @default(autoincrement())
-    user     User     @relation(fields: [userID], references: [id])
-    userID   Int      
-    balance  Int 
+    id       Int       @id @default(autoincrement())
+    userID   Int
+    user     User      @relation(fields: [userID], references: [id])
+    balance  BigInt
     expireAt DateTime?
-    issuedAt DateTime @db.Timestamp()
+    issuedAt DateTime  @default(now())
+}
+
+model Promo {
+    id               Int                @id @default(autoincrement())
+    organizerID      Int
+    organizer        Organizer          @relation(fields: [organizerID], references: [id])
+    promoName        String
+    eventID          Int
+    discount         Int
+    imgUrl           String             @db.LongText
+    expireAt         DateTime
+    issuedAt         DateTime           @default(now())
+    TransactionPromo TransactionPromo[]
+}
+
+model Transaction {
+    id               Int                @id @default(autoincrement())
+    eventID          Int
+    userID           Int
+    seatsOrdered     Int
+    totalDiscount    Int
+    status           Status
+    paymentDue       DateTime
+    total            BigInt
+    createdAt        DateTime           @default(now())
+    TransactionPromo TransactionPromo[]
+}
+
+model Wishlist {
+    id      Int   @id @default(autoincrement())
+    eventID Int
+    userID  Int
+    event   Event @relation(fields: [eventID], references: [id])
+    user    User  @relation(fields: [userID], references: [id])
+}
+
+model Review {
+    id     Int @id @default(autoincrement())
+    userID Int
+
+    eventID   Int
+    user      User     @relation(fields: [userID], references: [id])
+    event     Event    @relation(fields: [eventID], references: [id])
+    desc      String   @db.LongText
+    rating    Int
+    createdAt DateTime @default(now())
+}
+
+model Media {
+    id      Int    @id @default(autoincrement())
+    eventID Int
+    event   Event  @relation(fields: [eventID], references: [id])
+    url     String @db.LongText
+}
+
+model TransactionPromo {
+    id            Int         @id @default(autoincrement())
+    transactionID Int
+    promoID       Int
+    transaction   Transaction @relation(fields: [transactionID], references: [id])
+    promo         Promo       @relation(fields: [promoID], references: [id])
 }

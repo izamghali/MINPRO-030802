@@ -1,14 +1,16 @@
 -- CreateTable
-CREATE TABLE `Promotor` (
+CREATE TABLE `Organizer` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
-    `promotor_name` VARCHAR(191) NOT NULL,
+    `orginzer_name` VARCHAR(191) NOT NULL,
+    `isOrg` BOOLEAN NOT NULL,
     `email` VARCHAR(191) NOT NULL,
     `password` VARCHAR(191) NOT NULL,
     `domain` VARCHAR(191) NOT NULL,
     `imgUrl` LONGTEXT NOT NULL,
     `jwt` LONGTEXT NOT NULL,
-    `createdAt` DATETIME(3) NOT NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
 
+    UNIQUE INDEX `Organizer_orginzer_name_key`(`orginzer_name`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -21,11 +23,11 @@ CREATE TABLE `User` (
     `gender` ENUM('MALE', 'FEMALE') NOT NULL,
     `dob` DATETIME(3) NOT NULL,
     `domain` VARCHAR(191) NOT NULL,
-    `usedReferral` BOOLEAN NOT NULL DEFAULT false,
-    `referralCode` VARCHAR(191) NOT NULL,
-    `imgUrl` LONGTEXT NOT NULL,
+    `usedReferral` BOOLEAN NULL DEFAULT false,
+    `referralCode` VARCHAR(191) NULL,
+    `imgUrl` LONGTEXT NULL,
     `jwt` LONGTEXT NOT NULL,
-    `createdAt` DATETIME(3) NOT NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
 
     UNIQUE INDEX `User_username_key`(`username`),
     UNIQUE INDEX `User_email_key`(`email`),
