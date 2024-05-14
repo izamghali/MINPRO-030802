@@ -10,6 +10,7 @@
     "test": "npx cypress verify & cypress run --component"
   },
   "dependencies": {
+    "@gsap/react": "^2.1.1",
     "@reduxjs/toolkit": "^2.2.4",
     "check-password-strength": "^2.0.10",
     "clsx": "^2.1.1",
