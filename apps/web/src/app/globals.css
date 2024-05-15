@@ -15,8 +15,22 @@
         @apply space-y-4;
     }
 
-    .is-active {
-        @apply bg-slate-800 text-slate-50;
+    .drawer-menu-is-active {
+        @apply text-black 
+        bg-gradient-to-r from-white;
+    }
+
+    .drawer-menu-not-active {
+        @apply text-white
+        focus:bg-gradient-to-r;
+    }
+
+    .org-drawer-menu-is-active {
+        @apply text-black bg-white/55;
+    }
+
+    .org-drawer-menu-not-active {
+        @apply text-white;
     }
 
     .sign-up-form-outer-label {
@@ -25,5 +39,9 @@
 
     .sign-up-form-parent-label {
         @apply relative mb-6 sm:mb-0;
+    }
+
+    .heading-text {
+        @apply font-semibold lg:font-bold;
     }
 }
