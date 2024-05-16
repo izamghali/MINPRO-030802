@@ -1,23 +1,31 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { createSlice } from "@reduxjs/toolkit";
 
 type InitialState = {
     value: {
-        isAuth: boolean
+        currentAccount: any
     }
 }
 
 const initialState: InitialState = {
-    value: { // value of who is authenticated
-        isAuth: false, // 
+    value: { 
+        currentAccount: {},
     }
 }
 
 export const authSlice = createSlice({
     name: 'auth',
-    initialState,
-    reducers: { // collection of reducers of authSlice
-        testAuth: () => {
-            return initialState;
-        }
+    initialState: initialState,
+    reducers: { 
+        setCurrentAccount: (state, action) => {
+            return {
+                value: {
+                    currentAccount: action.payload
+                }
+            }
+        },
     }
 })
+
+
+export const { setCurrentAccount } = authSlice.actions
+export default authSlice.reducer;
