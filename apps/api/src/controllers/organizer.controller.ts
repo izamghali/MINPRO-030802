@@ -55,7 +55,7 @@ export const createOrganizer = async (req: Request, res: Response) => {
         await transporter.sendMail({
             from: "izamghali18@gmail.com",
             to: organizer.email,
-            subject: "Welcome to AdrenalineRush! Verify Your Email to Get Started",
+            subject: "Welcome to 生きる! Verify Your Email to Get Started",
             html
         })
 

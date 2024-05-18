@@ -147,7 +147,6 @@ export function handleChange(
 }
 
 export function userCleanUpForm() {
-    console.log('cleaning up USER form...')
     const userForm = document.getElementById('sign-up-form-user') as HTMLFormElement
     const usernameGuard = document.getElementById('username-guard')
     const userEmailValid = document.getElementById('user-email-valid')

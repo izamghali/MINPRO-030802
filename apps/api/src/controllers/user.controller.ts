@@ -14,7 +14,7 @@ import prisma from "@/prisma";
 export const createUser = async (req: Request, res: Response) => {
     try { 
 
-        const { username, email, referralCode, password } = req.body;
+        const { username, email, referralCode, password, dob } = req.body;
         console.log(req.body)
         
         const totalUsers = await prisma.user.findMany();
@@ -39,7 +39,7 @@ export const createUser = async (req: Request, res: Response) => {
             data: {
                 id: uuid(),
                 ...req.body, 
-                dob: new Date(),
+                dob: new Date(dob),
                 password: hashedPassword,
                 referralCode: newReferral
             }
@@ -67,7 +67,7 @@ export const createUser = async (req: Request, res: Response) => {
         await transporter.sendMail({
             from: "izamghali18@gmail.com",
             to: user.email,
-            subject: "Welcome to AdrenalineRush! Verify Your Email to Get Started",
+            subject: "Welcome to 生きる! Verify Your Email to Get Started",
             html
         })
 

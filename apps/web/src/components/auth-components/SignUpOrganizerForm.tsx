@@ -1,6 +1,6 @@
 import React, { useState } from "react"
 import Button from "../Button"
-import { showCloseModal } from "@/helpers/modal.function"
+import { closeModal, showCloseModal } from "@/helpers/modal.function"
 import { postRequest } from "@/helpers/request/fetchRequests"
 import { cleanUpForms, orgCleanUpForm } from "@/helpers/formHandling"
 import { arrowLeftSVG } from "@/helpers/svg"
@@ -31,13 +31,11 @@ export default function SignUpOrganizerForm({
 
         try {
             const res = await postRequest(orgData, 'organizers')
-
-            console.log(res)
         
             if (res.ok) {
                 setLoading(false)
                 showCloseModal('sign-up-success-modal', 'sign-up-modal-organizer');
-                (document.getElementById('sign-up-failed-modal-org') as HTMLFormElement).close();
+                closeModal('sign-up-failed-modal-org');
                 orgCleanUpForm()
             } else {
                 setStatusCode(res.status)

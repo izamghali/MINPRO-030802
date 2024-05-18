@@ -5,7 +5,7 @@ import { enableBtn } from "@/helpers/formHandling"
 import { useDebounce } from "use-debounce"
 import axios from 'axios'
 import Button from "../Button"
-import { showCloseModal } from "@/helpers/modal.function"
+import { closeModal, showCloseModal } from "@/helpers/modal.function"
 import { postRequest } from "@/helpers/request/fetchRequests"
 import { arrowLeftSVG } from "@/helpers/svg"
 import Image from "next/image"
@@ -90,21 +90,13 @@ export default function SignUpUserForm({
     async function handleSubmit(e: any) {
         e.preventDefault()
         setLoading(true)
+        // TODO:  disable the button
+        // TODO:  enable button on failed modal
 
         const userDate: any = dobRef.current?.value.toString().split('-')
-        const year = Number(userDate[0])
-        const month = Number(Number(userDate[1]) - 1)
-        const date = Number(userDate[2])
+        const [ year, month, day ] = userDate;
+        const formattedDate = `${year}-${month}-${day}`;
 
-        console.log(userDate)
-
-        const dob = new Date()
-        dob.setDate(date)
-        dob.setMonth(month)
-        dob.setFullYear(year)
-
-        console.log(dob)
-        
         const userData = {
             username: usernameRef.current?.value,
             email: emailRef.current?.value,
@@ -112,19 +104,16 @@ export default function SignUpUserForm({
             domain: domainRef.current?.value,
             gender: genderRef.current?.value,
             referralCode: referralCodeRef.current?.value,
-            dob: dob
+            dob: formattedDate
         }
-
-        console.log(userData)
 
         try {
             const res = await postRequest(userData, 'users')
-            console.log(res)
         
             if (res.ok) {
                 setLoading(false)
                 showCloseModal('sign-up-success-modal', 'sign-up-modal-user');
-                (document.getElementById('sign-up-failed-modal-user') as HTMLFormElement ).close()
+                closeModal('sign-up-failed-modal-user');
                 (document.getElementById('sign-up-form-user') as HTMLFormElement ).reset()
             } else {
                 setStatusCode(res.status)
