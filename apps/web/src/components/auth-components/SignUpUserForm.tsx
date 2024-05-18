@@ -1,19 +1,27 @@
 'use client'
-import React, { useEffect, useState } from "react"
-import { handleChange } from "@/helpers/onChange.function"
-import { enableBtn } from "@/helpers/button.function"
+import React, { useState } from "react"
+import { cleanUpForms, handleChange } from "@/helpers/formHandling"
+import { enableBtn } from "@/helpers/formHandling"
 import { useDebounce } from "use-debounce"
 import axios from 'axios'
+import Button from "../Button"
+import { showCloseModal } from "@/helpers/modal.function"
+import { postRequest } from "@/helpers/request/fetchRequests"
+import { arrowLeftSVG } from "@/helpers/svg"
+import Image from "next/image"
+import regFailed from '../../../public/illustrations/error.png'
 
 
 export default function SignUpUserForm({ 
-    className, passwordArr, refs, countriesArray, handleChangeFunc , signupBtnRef
+    className, passwordArr, refs, countriesArray, handleChangeFunc, signupBtnRef,
+    loading, setLoading
     } : { 
-        className: string, passwordArr: any, refs: any, countriesArray: string[], handleChangeFunc: any, signupBtnRef: any
+        className: string, passwordArr: any, refs: any, countriesArray: string[], handleChangeFunc: any, signupBtnRef: any,
+        loading: boolean, setLoading: any
     }) {
     
+    const [ statusCode, setStatusCode ] = useState(0)
     const [ emailRef, usernameRef, passwordRef, confirmPasswordRef, domainRef, genderRef, dobRef, referralCodeRef ] = refs
-    const [ status, setStatus ] = useState<any>();
     const [ debouncedFetchUserByReferral ] = useDebounce(fetchUserByReferral, 5000)
     
     async function fetchUserByReferral(referral: any) {
@@ -67,11 +75,71 @@ export default function SignUpUserForm({
 
         await debouncedFetchUserByReferral(referralCodeValue.value)
 
-        if ((handleChange(emailRef, passwordRef, confirmPasswordRef, domainRef, usernameRef, 'adventurer', signupBtnRef) && await referralCodeCheck(referralCodeValue?.value)) && (genderCheck() && dobValue?.value !== '')) {
+        if ((handleChange(emailRef, passwordRef, confirmPasswordRef, domainRef, usernameRef, 'user') && await referralCodeCheck(referralCodeValue?.value)) && (genderCheck() && dobValue?.value !== '')) {
             signupBtnRef.current?.classList.remove('btn-disabled')
         } else {
             signupBtnRef.current?.classList.add('btn-disabled')
         }
+    }
+    
+    function closeAndCleanFailedModal() {
+        cleanUpForms();
+        showCloseModal('', 'sign-up-failed-modal')
+    }
+
+    async function handleSubmit(e: any) {
+        e.preventDefault()
+        setLoading(true)
+
+        const userDate: any = dobRef.current?.value.toString().split('-')
+        const year = Number(userDate[0])
+        const month = Number(Number(userDate[1]) - 1)
+        const date = Number(userDate[2])
+
+        console.log(userDate)
+
+        const dob = new Date()
+        dob.setDate(date)
+        dob.setMonth(month)
+        dob.setFullYear(year)
+
+        console.log(dob)
+        
+        const userData = {
+            username: usernameRef.current?.value,
+            email: emailRef.current?.value,
+            password: passwordRef.current?.value,
+            domain: domainRef.current?.value,
+            gender: genderRef.current?.value,
+            referralCode: referralCodeRef.current?.value,
+            dob: dob
+        }
+
+        console.log(userData)
+
+        try {
+            const res = await postRequest(userData, 'users')
+            console.log(res)
+        
+            if (res.ok) {
+                setLoading(false)
+                showCloseModal('sign-up-success-modal', 'sign-up-modal-user');
+                (document.getElementById('sign-up-failed-modal-user') as HTMLFormElement ).close()
+                (document.getElementById('sign-up-form-user') as HTMLFormElement ).reset()
+            } else {
+                setStatusCode(res.status)
+                setLoading(false)
+                showCloseModal('sign-up-failed-modal-user', 'sign-up-modal-user');
+            }
+
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    function showLoginModal(e: any) {
+        e.preventDefault()
+        showCloseModal('login-modal',`sign-up-modal-user`)
     }
 
     return (
@@ -85,7 +153,7 @@ export default function SignUpUserForm({
                         <input ref={usernameRef} onChange={handleUserChange} type="text" className="grow" placeholder="Username" />
                     </div>
                     <div className="label w-full sm:justify-end justify-start sign-up-form-outer-label">
-                        <span className="label-text-alt text-black hidden">minimum 6 characters</span>
+                        <span id="username-guard" className="label-text-alt text-black hidden">minimum 6 characters</span>
                     </div>
                 </label>
 
@@ -97,7 +165,7 @@ export default function SignUpUserForm({
                             <input onChange={handleUserChange} ref={emailRef} type="text" className="grow" placeholder="Email" />
                         </div>
                         <div className="label w-full sm:justify-end justify-start sign-up-form-outer-label">
-                            <span className="label-text-alt text-green-400 hidden">Valid Email</span>
+                            <span id="user-email-valid" className="label-text-alt text-green-400 hidden">Valid Email</span>
                         </div>
                     </label>
                 </div>
@@ -110,7 +178,7 @@ export default function SignUpUserForm({
                             <path d="M8 0a8 8 0 1 0 0 16A8 8 0 0 0 8 0M1.612 10.867l.756-1.288a1 1 0 0 1 1.545-.225l1.074 1.005a.986.986 0 0 0 1.36-.011l.038-.037a.88.88 0 0 0 .26-.755c-.075-.548.37-1.033.92-1.099.728-.086 1.587-.324 1.728-.957.086-.386-.114-.83-.361-1.2-.207-.312 0-.8.374-.8.123 0 .24-.055.318-.15l.393-.474c.196-.237.491-.368.797-.403.554-.064 1.407-.277 1.583-.973.098-.391-.192-.634-.484-.88-.254-.212-.51-.426-.515-.741a7 7 0 0 1 3.425 7.692 1 1 0 0 0-.087-.063l-.316-.204a1 1 0 0 0-.977-.06l-.169.082a1 1 0 0 1-.741.051l-1.021-.329A1 1 0 0 0 11.205 9h-.165a1 1 0 0 0-.945.674l-.172.499a1 1 0 0 1-.404.514l-.802.518a1 1 0 0 0-.458.84v.455a1 1 0 0 0 1 1h.257a1 1 0 0 1 .542.16l.762.49a1 1 0 0 0 .283.126 7 7 0 0 1-9.49-3.409Z"/>
                         </svg>
                         <select ref={domainRef} onChange={handleUserChange} className="select select-bordered pl-0 w-full focus:outline-0 border-l-0 rounded-tl-none rounded-bl-none">
-                            <option id="domain-placeholder-adventurer" placeholder="Domain" className="">Domain</option>
+                            <option id="domain-placeholder-user" placeholder="Domain" className="">Domain</option>
                             
                             {
                                 countriesArray.map((item, idx) => {
@@ -119,11 +187,9 @@ export default function SignUpUserForm({
                             }
                         </select>
                     </label>
-                    <div className="label w-full sm:justify-end justify-start sign-up-form-outer-label hidden">
-                        <span className="label-text-alt text-black">welcome</span>
-                    </div>
                 </div>
 
+                {/* gender & dob */}
                 <div className="flex flex-col sm:gap-4 gap-6">
                     <div className="flex flex-col sm:flex-row gap-6 sm:gap-2">
                         {/* gender */}
@@ -133,17 +199,18 @@ export default function SignUpUserForm({
                             </svg>
                             <select ref={genderRef} onChange={handleUserChange} className="select select-bordered pl-0 w-full focus:outline-0 border-l-0 rounded-tl-none rounded-bl-none">
                                 <option id="gender-placeholder" placeholder="Gender" className="">Gender</option>
-                                <option>Male</option>
-                                <option>Female</option>
+                                <option>MALE</option>
+                                <option>FEMALE</option>
                             </select>
                         </label>
 
                         {/* DOB */}
                         <label className="input input-bordered flex items-center gap-2">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="w-4 h-4 opacity-70" viewBox="0 0 16 16"><path d="M11 6.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5zm-3 0a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5zm-5 3a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5zm3 0a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5z"/><path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5M1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4z"/></svg>
-                            <input ref={dobRef} onChange={handleUserChange} min="1924-01-01" type="date" className="grow" placeholder="DOB" />
+                            <input id="user-dob" ref={dobRef} onChange={handleUserChange} min="1924-01-01" type="date" className="grow" placeholder="DOB" />
                         </label>
                     </div>
+                    
                     {/* referral */}
                     <label className="input input-bordered flex items-center gap-2 sign-up-form-parent-label">
                         <div className="flex items-center gap-2">
@@ -151,7 +218,7 @@ export default function SignUpUserForm({
                             <input ref={referralCodeRef} onChange={handleUserChange} type="text" className="grow" placeholder="Referral Code(Optional)" />
                         </div>
                         <div className="label w-full sm:justify-end justify-start sign-up-form-outer-label">
-                            <span className="label-text-alt text-green-400 hidden">Code Valid!</span>
+                            <span id="user-referral" className="label-text-alt text-green-400 hidden">Code Valid!</span>
                         </div>
                     </label>
                 </div>
@@ -162,7 +229,7 @@ export default function SignUpUserForm({
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="w-4 h-4 opacity-70"><path fillRule="evenodd" d="M14 6a4 4 0 0 1-4.899 3.899l-1.955 1.955a.5.5 0 0 1-.353.146H5v1.5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1-.5-.5v-2.293a.5.5 0 0 1 .146-.353l3.955-3.955A4 4 0 1 1 14 6Zm-4-2a.75.75 0 0 0 0 1.5.5.5 0 0 1 .5.5.75.75 0 0 0 1.5 0 2 2 0 0 0-2-2Z" clipRule="evenodd" /></svg>
                         <input ref={passwordRef} onChange={handleUserChange} type="password" className="grow" placeholder="Password" />
                     </div>
-                    <div className="
+                    <div id="user-password-strength" className="
                     label w-full sign-up-form-outer-label justify-start sm:justify-end
                     ">
                         { passwordArr.map((item: { status: string, style: string }, idx: number) => {
@@ -177,10 +244,47 @@ export default function SignUpUserForm({
                         <input ref={confirmPasswordRef} onChange={handleUserChange} type="password" className="grow" placeholder="Confirm Password" />
                     </div>
                     <div className="label w-full sign-up-form-outer-label justify-start sm:justify-end">
-                        <span className="label-text-alt text-green-400 hidden">Match</span>
+                        <span id="user-confirm-password" className="label-text-alt text-green-400 hidden">Match</span>
                     </div>
                 </label>
+
+                <p className="mt-4">By signing up, you agree to the&nbsp;
+                    <a className="underline cursor-pointer">Terms of Service</a>&nbsp; and&nbsp;
+                    <a className="underline cursor-pointer">Privacy Policy</a>, including&nbsp;
+                    <a className="underline cursor-pointer">Cookie Use</a>.
+                </p>
+                    
+                {/* submit button */}
+                <div className="flex flex-col justify-end mt-8 gap-2">
+                    <Button buttonID="user-sign-up-submit-btn" optionalFunc={handleSubmit} refName={signupBtnRef} className="w-full bg-accent btn-disabled" >
+                        { loading ? 
+                            <span className="loading loading-spinner loading-md"></span>
+                            :
+                            ''
+                        }
+                        Sign Up
+                    </Button>
+                    <p>Already have an account?&nbsp;
+                        <button onClick={showLoginModal} className="underline cursor-pointer">Login</button>
+                    </p>
+                </div>
+
             </form>
+
+            <dialog id="sign-up-failed-modal-user" className="modal">
+                <div className="modal-box flex flex-col items-center gap-4">
+                    <div onClick={() => showCloseModal(`sign-up-modal-user`, 'sign-up-failed-modal')} className="absolute left-6 text-black/60 scale-125 cursor-pointer">
+                        { arrowLeftSVG } 
+                    </div>
+                    <h3 className="font-bold text-lg">Registration failed!</h3>
+                    <Image className="w-64" src={regFailed} alt={'registration failed'} />
+                    <p className="text-black/60">{ statusCode !== 409 ? 'Please try again later.' : 'Email has been existed or username has been taken!' }</p>
+                    <Button optionalFunc={closeAndCleanFailedModal} className={'px-10 bg-black text-white/80 hover:text-black/80'}>Browse Instead</Button>
+                </div>
+                <form method="dialog" className="modal-backdrop">
+                    <button onClick={closeAndCleanFailedModal}>close</button>
+                </form>
+            </dialog>
 
         </div>
     )

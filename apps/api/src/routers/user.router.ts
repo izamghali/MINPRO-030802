@@ -1,6 +1,5 @@
 import { createUser, getUserByReferral, getUsers } from '@/controllers/user.controller';
-import { serverResponse } from '@/helpers/apiResponse';
-import { Router, Request, Response } from 'express'
+import { Router } from 'express'
 
 const userRouter = Router();
 

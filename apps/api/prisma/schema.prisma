@@ -22,7 +22,7 @@ enum Status {
 }
 
 model Organizer {
-    id            Int      @id @default(autoincrement())
+    id            String   @id
     organizerName String   @unique // NOTE:  organzier can't have the same name
     isOrg         Boolean  @default(true)
     accountActive Boolean  @default(false)
@@ -30,26 +30,24 @@ model Organizer {
     password      String
     domain        String
     imgUrl        String?  @db.LongText
-    jwt           String   @db.LongText
     createdAt     DateTime @default(now())
     Event         Event[] // NOTE:  organizer can create many events
     Promo         Promo[] // NOTE:  organizer can create many promos
 }
 
 model User {
-    id            Int        @id @default(autoincrement())
+    id            String     @id
     isOrg         Boolean    @default(false)
     accountActive Boolean    @default(false)
     username      String     @unique // NOTE:  each username is different
     email         String     @unique //  NOTE:  each email is different
     password      String
     gender        Gender
-    dob           DateTime
+    dob           DateTime?
     domain        String
-    usedReferral  Boolean?   @default(false)
-    referralCode  String?    @unique
+    usedReferral  Boolean    @default(false)
+    referralCode  String     @unique
     imgUrl        String?    @db.LongText
-    jwt           String     @db.LongText
     createdAt     DateTime   @default(now())
     Balance       Balance[] // NOTE:  user can have multiple balance
     Review        Review[] //  NOTE:  user can write many reviews
@@ -57,10 +55,11 @@ model User {
 }
 
 model Event {
-    id             Int        @id @default(autoincrement())
-    organizerID    Int        @unique
+    id             String     @id
+    organizerID    String     @unique
     organizer      Organizer  @relation(fields: [organizerID], references: [id])
     eventName      String
+    isActive       Boolean    @default(false)
     location       String
     date           DateTime
     eventType      String // FIX:  you might wanna change this to ENUM
@@ -76,8 +75,8 @@ model Event {
 }
 
 model Balance {
-    id       Int       @id @default(autoincrement())
-    userID   Int
+    id       String    @id
+    userID   String
     user     User      @relation(fields: [userID], references: [id])
     balance  BigInt
     expireAt DateTime?
@@ -86,7 +85,7 @@ model Balance {
 
 model Promo {
     id               Int                @id @default(autoincrement())
-    organizerID      Int
+    organizerID      String
     organizer        Organizer          @relation(fields: [organizerID], references: [id])
     promoName        String
     eventID          Int
@@ -111,18 +110,17 @@ model Transaction {
 }
 
 model Wishlist {
-    id      Int   @id @default(autoincrement())
-    eventID Int
-    userID  Int
-    event   Event @relation(fields: [eventID], references: [id])
-    user    User  @relation(fields: [userID], references: [id])
+    id      Int    @id @default(autoincrement())
+    eventID String
+    userID  String
+    event   Event  @relation(fields: [eventID], references: [id])
+    user    User   @relation(fields: [userID], references: [id])
 }
 
 model Review {
-    id     Int @id @default(autoincrement())
-    userID Int
-
-    eventID   Int
+    id        Int      @id @default(autoincrement())
+    userID    String
+    eventID   String
     user      User     @relation(fields: [userID], references: [id])
     event     Event    @relation(fields: [eventID], references: [id])
     desc      String   @db.LongText
@@ -132,7 +130,7 @@ model Review {
 
 model Media {
     id      Int    @id @default(autoincrement())
-    eventID Int
+    eventID String
     event   Event  @relation(fields: [eventID], references: [id])
     url     String @db.LongText
 }
