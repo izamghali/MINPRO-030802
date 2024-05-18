@@ -1,16 +1,16 @@
 'use client'
 import Transition from "@/components/Transition"
-import { dispatchRouteEffect } from "@/helpers/dispatchRoute";
+import { dispatchRouteEffect } from "@/helpers/dispatchRoute"
 import React from "react"
 
 export default function Page() {
 
-    dispatchRouteEffect('Account')
+    dispatchRouteEffect('Help Center')
 
     return (
         <Transition>
             <div>
-                This is account page
+                Help Page!
             </div>
         </Transition>
     )
