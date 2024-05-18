@@ -41,7 +41,9 @@ export default function Overview({ className, src, heading, text, svg, buttonCla
 
               {/* content */}
               <div className="relative max-lg:max-w-[40rem] w-full flex flex-col justify-between items-end gap-10">
-                { text }
+                <span className="text-black/60">
+                    { text }
+                </span>
                 <NavigateBtn className={` ${buttonClassName} `} navigateTo="/about" buttonLabel="Take action now" />
               </div>
             </div>

@@ -1,14 +1,16 @@
-'use client'
 import React from "react"
-import { useRouter } from "next/navigation";
+import { useDispatch } from "react-redux";
+import { setPath } from "@/redux/features/pageNavigation-slice";
+import { AppDispatch } from "@/redux/store";
+import { setDashboardTitle } from "@/redux/features/dashboardTitle-slice";
 
-export default function SidebarMenuBtn({ children, text, svg, className, func, redirect, buttonID }: { children?: any, text?: string, svg?: any, className?: string, func?: any, redirect?: any, buttonID?: string }) {
+export default function SidebarMenuBtn({ children, text, svg, className, redirect, buttonID, title }: { children?: any, text?: string, svg?: any, className?: string, func?: any, redirect?: any, buttonID?: string, title?: string }) {
 
-    const router = useRouter();
+    const dispatch = useDispatch<AppDispatch>();
 
     function handleRedirect() {
-        func(buttonID);
-        router.push(redirect)
+        dispatch(setPath(redirect))
+        dispatch(setDashboardTitle(!text ? title : text))
     }
 
     return (
