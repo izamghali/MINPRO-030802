@@ -9,9 +9,9 @@ export default function Dropdown(
     return (
         <div id={dropdownID} className={`dropdown ${className} `}>
             <Button tabIndex={0} role="button" className="btn" text={dropdownText} svg={buttonSvg} />
-            <ul tabIndex={0} className={`dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52 ${ulClassName}`}>
+            <div tabIndex={0} className={`dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52 ${ulClassName}`}>
                 { children }
-            </ul>
+            </div>
         </div>
     )
 };
