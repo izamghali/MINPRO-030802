@@ -1,17 +1,21 @@
+'use client'
 import Button from "@/components/Button"
 import Dropdown from "@/components/Dropdown"
 import MenuList from "@/components/MenuList"
 import Modal from "@/components/Modal"
 import EventForm from "@/components/event/EventForm"
 import { removeToken } from "@/helpers/auth/logout"
+import { eventCleanUpForm } from "@/helpers/formHandling"
 import { showCloseModal } from "@/helpers/modal.function"
 import { plusSVG, logoutSVG, percentSVG, calendarSVG, billSVG, starSVG, profileSVG } from "@/helpers/svg"
 import { clearCurrentAccount } from "@/redux/features/auth-slice"
 import { useRouter } from "next/navigation"
-import React from "react"
+import React, { useState } from "react"
 import { useDispatch } from "react-redux"
 
 export default function OrganizerNav() {
+    const [ ticketData, setTicketData ] = useState<{ ticketType: string, price: number }[]>([]);
+    const [ files, setFiles ] = useState<File[]>([]);
 
     function showEventModal() {
         return showCloseModal('event-modal', '')
@@ -29,6 +33,12 @@ export default function OrganizerNav() {
         router.push('/')
     }
 
+    function cleanUpEventForm() {
+        setTicketData([])
+        setFiles([])
+        eventCleanUpForm();
+    }
+
     return (
         <div className="flex gap-4 w-full justify-end">
             <Modal
@@ -38,8 +48,9 @@ export default function OrganizerNav() {
                 buttonClassName="bg-accent hidden lg:flex"
                 modalClassName="max-w-[60rem]"
                 btnSvg={plusSVG}
+                cleanUpFunc={cleanUpEventForm}
             >
-                <EventForm className={""} />
+                <EventForm cleanUpFunc={cleanUpEventForm} ticketData={ticketData} setTicketData={setTicketData} className={""} files={files} setFiles={setFiles} />
             </Modal>
 
             <div>

@@ -203,3 +203,13 @@ export function cleanUpForms() {
     userCleanUpForm()
     orgCleanUpForm()
 }
+
+export function eventCleanUpForm(){
+    const form = document.getElementById('create-event-form') as HTMLFormElement;
+    document.getElementById('category-placeholder')?.removeAttribute('disabled')
+    document.getElementById('title-guard')?.classList.add('hidden')
+    document.getElementById('submit-create-event-btn')?.classList.add('btn-disabled')
+    document.getElementById('location-placeholder')?.removeAttribute('disabled')
+
+    form.reset()
+}

@@ -41,19 +41,35 @@ CREATE TABLE `User` (
 CREATE TABLE `Event` (
     `id` VARCHAR(191) NOT NULL,
     `organizerID` VARCHAR(191) NOT NULL,
-    `eventName` VARCHAR(191) NOT NULL,
     `isActive` BOOLEAN NOT NULL DEFAULT false,
+    `eventName` VARCHAR(191) NOT NULL,
+    `category` ENUM('ENTERTAINMENT', 'SPORTS', 'EDUCATION') NOT NULL,
     `location` VARCHAR(191) NOT NULL,
     `date` DATETIME(3) NOT NULL,
-    `eventType` VARCHAR(191) NOT NULL,
-    `category` VARCHAR(191) NOT NULL,
-    `price` BIGINT NOT NULL DEFAULT 0,
     `details` LONGTEXT NOT NULL,
     `availableSeats` INTEGER NOT NULL,
     `thumbnailUrl` LONGTEXT NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
 
-    UNIQUE INDEX `Event_organizerID_key`(`organizerID`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `Media` (
+    `id` VARCHAR(191) NOT NULL,
+    `eventID` VARCHAR(191) NOT NULL,
+    `url` LONGTEXT NOT NULL,
+
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `EventTypePrice` (
+    `id` VARCHAR(191) NOT NULL,
+    `eventType` VARCHAR(191) NOT NULL,
+    `price` INTEGER NOT NULL,
+    `eventID` VARCHAR(191) NOT NULL,
+
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -119,15 +135,6 @@ CREATE TABLE `Review` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
-CREATE TABLE `Media` (
-    `id` INTEGER NOT NULL AUTO_INCREMENT,
-    `eventID` VARCHAR(191) NOT NULL,
-    `url` LONGTEXT NOT NULL,
-
-    PRIMARY KEY (`id`)
-) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-
--- CreateTable
 CREATE TABLE `TransactionPromo` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `transactionID` INTEGER NOT NULL,
@@ -138,6 +145,12 @@ CREATE TABLE `TransactionPromo` (
 
 -- AddForeignKey
 ALTER TABLE `Event` ADD CONSTRAINT `Event_organizerID_fkey` FOREIGN KEY (`organizerID`) REFERENCES `Organizer`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Media` ADD CONSTRAINT `Media_eventID_fkey` FOREIGN KEY (`eventID`) REFERENCES `Event`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `EventTypePrice` ADD CONSTRAINT `EventTypePrice_eventID_fkey` FOREIGN KEY (`eventID`) REFERENCES `Event`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `Balance` ADD CONSTRAINT `Balance_userID_fkey` FOREIGN KEY (`userID`) REFERENCES `User`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -156,9 +169,6 @@ ALTER TABLE `Review` ADD CONSTRAINT `Review_userID_fkey` FOREIGN KEY (`userID`) 
 
 -- AddForeignKey
 ALTER TABLE `Review` ADD CONSTRAINT `Review_eventID_fkey` FOREIGN KEY (`eventID`) REFERENCES `Event`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE `Media` ADD CONSTRAINT `Media_eventID_fkey` FOREIGN KEY (`eventID`) REFERENCES `Event`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `TransactionPromo` ADD CONSTRAINT `TransactionPromo_transactionID_fkey` FOREIGN KEY (`transactionID`) REFERENCES `Transaction`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;

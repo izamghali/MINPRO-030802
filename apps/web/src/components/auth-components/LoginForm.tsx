@@ -36,8 +36,6 @@ export default function LoginForm({ className, refs }: { className: string, refs
         e.preventDefault()
         const email:string = loginEmailRef.current.value
         const password:string = loginPasswordRef.current.value
-        
-        // const loginData = { email: email, password: password }
 
         const loginData = {
             email: email,

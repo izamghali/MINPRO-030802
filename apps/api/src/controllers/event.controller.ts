@@ -1,20 +1,47 @@
 import { serverResponse } from "@/helpers/apiResponse";
-import { PrismaClient } from "@prisma/client"
 import { Request, Response } from "express";
 import prisma from "@/prisma";
+import { v4 as uuid } from 'uuid'
 
 export const createEvent = async (req: Request, res: Response) => {
     try {
         // TODO: 
-        // get data from req.body
-        // get organizerID
-        // add event to the database
-        // get organizerId from token
-        // allow event to be created if organizer is logged in
+        const {
+            eventID, orgID, eventTitle, 
+            category, location, date,
+            details, seats, thumbnailURL, tickets
+        } = req.body
 
-        // const organizerID = req.organizer?.id
+        // creating event
+        const event = await prisma.event.create({
+            data: {
+                id: eventID,
+                organizerID: orgID,
+                eventName: eventTitle,
+                category: category,
+                location: location,
+                date: new Date(date),
+                details: details,
+                availableSeats: seats,
+                thumbnailUrl: thumbnailURL
+            }
+        })
 
-        // serverResponse(res, 201, 'Event Created!')
+        // creating ticket types for this event
+        for (const ticket of tickets) {
+            await prisma.eventTypePrice.create({
+                data: {
+                    id: uuid(),
+                    eventType: ticket.ticketType, 
+                    price: ticket.price, 
+                    eventID: event.id
+                }
+            });
+        }
+
+        console.log('(api): event', event)
+
+        serverResponse(res, 201, 'Event Created!', req.body)
 
     } catch (error: any) {
         serverResponse(res, 400, 'error', error)

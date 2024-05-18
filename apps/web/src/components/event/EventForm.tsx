@@ -1,120 +1,478 @@
 'use client'
-import { playBtn } from "@/helpers/svg"
-import React, { useRef } from "react"
+import React, { useEffect, useRef, useState } from "react"
+import FileUpload from "./FileUpload"
+import Button from "../Button"
+import { analyticsSVG, arrowLeftSVG, arrowRightSVG, baloonSVG, calendarSVG, peopleSVG, plusSVG, ticketSVG, trashSVG } from "@/helpers/svg"
+import { categoryArr, locationArr } from "@/helpers/dummyData"
+import { postRequest } from "@/helpers/request/fetchRequests"
+import useStorage from "@/hooks/useStorage"
+import { closeModal, showCloseModal } from "@/helpers/modal.function"
+import Image from "next/image"
+import eventFailed from '../../../public/illustrations/fixing.png';
+import regSuc from '../../../public/illustrations/task-done.png';
+import { useRouter } from "next/navigation"
+import Cookies from "js-cookie"
+import { parseJwt } from "@/helpers/auth/token"
+import { v4 as uuid } from 'uuid'
 
-export default function EventForm({ className }: { className: string }) {
+export default function EventForm({ className, ticketData, setTicketData, files, setFiles, cleanUpFunc }: { className: string, ticketData: any, setTicketData: any, files: File[], setFiles: any, cleanUpFunc: any }) {
 
+    const router = useRouter();
+    const [ loading, setLoading ] = useState(false)
+    const { uploadFile, progress } = useStorage();
+    const [eventDate, setEventDate] = useState<Date | undefined>(undefined);
     const eventTitleRef = useRef<HTMLInputElement>(null)
-    const priceRef = useRef<HTMLInputElement | any>(null)
-    const submitButtonRef = useRef<HTMLButtonElement>(null)
+    const categoryRef = useRef<HTMLSelectElement>(null)
     const detailsRef = useRef<HTMLTextAreaElement>(null)
     const dateRef = useRef<HTMLInputElement>(null)
     const seatsRef = useRef<HTMLInputElement | any>(null)
     const locationRef = useRef<HTMLSelectElement>(null)
 
-    let locations = [
-        'Bali, Indonesia', 'Lombok, Indonesia', 'Bandung, Indonesia', 'Macau, China',
-        'Ticino, Switzerland', 'Western Cape, South Africa', 'Corsica, France'
-    ]
+    const ticketTypeRef = useRef<HTMLInputElement>(null)
+    // const [ ticketData, setTicketData ] = useState<{ ticketType: string, price: number }[]>([]);
 
-    function handleForm() {
-        let eventTitleValue = eventTitleRef.current;
-        let priceValue = priceRef.current;
-        let detailsValue = detailsRef.current;
-        let seatsValue = seatsRef.current;
-        let dateValue = dateRef.current;
-        let locationValue = locationRef.current;
-        if (locationValue?.value) {
-            document.getElementById('location-placeholder')?.setAttribute('disabled', 'disabled')
-        }
+    useEffect(() => {
+        // render if ticketTypes change
+        detailsCheck();
+        handleEventChangeForm()
+        fileCheck();
+        seatsCheck();
+    }, [ ticketData ]);
 
-        let inputs = [ 
-            eventTitleValue, priceValue, 
-            detailsValue, seatsValue, dateValue, locationValue 
-        ]
-        let trues = []
-
-        for (let input of inputs) {
-            if (input?.value === '' || input?.value < 1) {
-                trues.push(false) 
-            } else {
-                
-                if (input.type === 'date') {
-                    
-                    let date = input.value.split('-')
-                    let year = date[0]
-                    let month = date[1]
-                    let day = date[2]
-                    
-                    if ((year > 2023 && month > 4) && day > 0) {
-                        trues.push(true)
-                    } else {
-                        trues.push(false)
-                    }
-                } else if (input.type === 'select-one') {
-                    console.log(`input: ${input?.type}`)
-                } else {
-                    trues.push(true)
-                }
-            }
-        }
-
-        let allTrues = trues.every(item => item == true);
-
-        if (allTrues) { submitButtonRef.current?.removeAttribute('disabled')   
-        } else { submitButtonRef.current?.setAttribute('disabled', 'disabled')
+    function addTicketType(event: any) {
+        event.preventDefault()
+        const newType = ticketTypeRef.current?.value.trim();
+        const sameType = ticketData.find((item: { ticketType: string | undefined }) => item.ticketType === newType)
+        if ((newType && !sameType) && ticketData.length < 3) {
+            setTicketData((prevTicketData: any) => [...prevTicketData, { ticketType: newType, price: 0 }]);
+            return true;
+        } else {
+            return false;
         }
     }
 
+    function removeType(event: React.MouseEvent<HTMLSpanElement>) {
+        const target = (event.target as HTMLSpanElement).innerHTML;
+        let currentTypes = [...ticketData];
+        if (target !== ' - ') {
+            setTicketData(currentTypes.filter(item => item.ticketType !== target));
+        } 
+    }
+
+    const handleChangePrice = (index: number) => (event: React.ChangeEvent<HTMLInputElement>) => {
+        const { value } = event.target;
+        const updatedPrices = [...ticketData];
+        updatedPrices[index].price = Number(value);
+    };
+
+    function eventTitleCheck(){
+        let eventTitleValue = eventTitleRef.current;
+        
+        if (eventTitleValue?.value && eventTitleValue?.value.length > 10) {
+            document.getElementById('title-guard')?.classList.add('hidden')
+            return true;
+        } else {
+            document.getElementById('title-guard')?.classList.remove('hidden')
+            return false
+        }
+    }
+
+    function categoryCheck() {
+        const selectedValue = categoryRef.current?.value;
+        const cat = document.getElementById('category-placeholder')
+        cat?.setAttribute('disabled', 'disabled')
+        if (selectedValue === 'CATEGORY') {
+            return false
+        } else {
+            return true
+        }
+    }
+
+    function ticketTypeCheck() {
+        if (ticketData.length < 3 && ticketData.length > 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    function detailsCheck() {
+        const details = detailsRef.current?.value ?? ''; // Default to an empty string if undefined
+
+        if (details.length > 29) {
+            document.getElementById('details-guard')?.classList.add('hidden')
+            return true;
+        } else {
+            document.getElementById('details-guard')?.classList.remove('hidden')
+            return false;
+        }
+    }
+
+    function locationCheck() {
+        const loc = document.getElementById('location-placeholder')
+        const locVal = locationRef.current?.value
+        loc?.setAttribute('disabled', 'disabled')
+
+        if (locVal === 'Location') {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    function seatsCheck() {
+        const seats = seatsRef.current.value;
+        const guard = document.getElementById('seats-guard')
+
+        if (seats > 9) {
+            guard?.classList.add('hidden')
+            return true
+        } else {
+            guard?.classList.remove('hidden')
+            return false
+        }
+        
+    }
+
+    function fileCheck() {
+        const guard  = document.getElementById('file-guard');
+        if (files.length > 0) {
+            guard?.classList.add('hidden')
+            return true;
+        } else {
+            guard?.classList.remove('hidden')
+            return false;
+        }
+    }
+
+    // async function submitCreateEvent(event: any) {
+    //     event.preventDefault();
+    //     const date = dateRef.current?.value;
+    //     if (date) {
+    //         const [year, month, day] = date.split('-');
+    //         const formattedDate = new Date(Number(year), Number(month) - 1, Number(day));
+    //         setEventDate(formattedDate)
+    //     }
+
+    //     let thumbnailURL = '';
+
+    //     const token = Cookies.get('token')
+    //     const payload = parseJwt(token);
+    //     const orgID = payload.id
+    //     const eventID = uuid();
+
+    //     try {
+    //         if (files.length === 1) {
+    //             thumbnailURL = await uploadFile(files[0]);
+    //         } else if (files.length > 1) {
+    //             for (let i = 0; i < files.length; i++) {
+    //                 const file = files[i];
+    //                 const uploadedURL = await uploadFile(file);
+                    
+    //                 if (i === 0) {
+    //                     thumbnailURL = uploadedURL;
+    //                 } else {
+    //                     await postRequest({ mediaURL: uploadedURL, eventID }, 'media/');
+    //                 }
+    //             }
+    //         }
+
+    //         const formData = {
+    //             eventTitle: eventTitleRef.current?.value || '',
+    //             eventID: eventID,
+    //             orgID: orgID,
+    //             details: detailsRef.current?.value || '',
+    //             location: locationRef.current?.value || '',
+    //             date: eventDate,
+    //             seats: Number(seatsRef.current?.value) || '',
+    //             tickets: ticketData,
+    //             category: categoryRef.current?.value,
+    //             thumbnailURL: thumbnailURL
+    //         };
+    //         console.log('data:', formData)
+
+    //         const res = await postRequest(formData, 'events')
+    //         console.log(res)
+
+    //         if (res.ok) {
+    //             setLoading(true);
+    //             document.getElementById('submit-create-event-btn')?.classList.add('btn-disabled')
+    //             cleanUpFunc();
+    //             showCloseModal('create-event-success-modal', 'event-modal')
+    //         } else {
+    //             setLoading(true)
+    //             showCloseModal('create-event-failed-modal', 'event-modal')
+    //             document.getElementById('submit-create-event-btn')?.classList.remove('btn-disabled')
+    //         }
+
+    //     } catch (error) {
+    //         console.error('Error during file upload or post request:', error);
+    //         throw error; 
+    //     }
+    // }
+
+    async function submitCreateEvent(event: any) {
+        event.preventDefault();
+        const date = dateRef.current?.value;
+        let formattedDate;
+    
+        if (date) {
+            const [year, month, day] = date.split('-');
+            formattedDate = new Date(Number(year), Number(month) - 1, Number(day));
+            setEventDate(formattedDate); // Setting state asynchronously
+        }
+    
+        let thumbnailURL = '';
+        const token = Cookies.get('token');
+        const payload = parseJwt(token);
+        const orgID = payload.id;
+        const eventID = uuid();
+    
+        const formData = {
+            eventTitle: eventTitleRef.current?.value || '',
+            eventID: eventID,
+            orgID: orgID,
+            details: detailsRef.current?.value || '',
+            location: locationRef.current?.value || '',
+            date: formattedDate, // Use the formatted date directly
+            seats: Number(seatsRef.current?.value) || 0, // Ensure seats is a number
+            tickets: ticketData,
+            category: categoryRef.current?.value || '',
+            thumbnailURL: thumbnailURL // This will be updated after file upload
+        };
+    
+        console.log('Initial data:', formData);
+    
+        try {
+            if (files.length === 1) {
+                thumbnailURL = await uploadFile(files[0]);
+            } else if (files.length > 1) {
+                for (let i = 0; i < files.length; i++) {
+                    const file = files[i];
+                    const uploadedURL = await uploadFile(file);
+    
+                    if (i === 0) {
+                        thumbnailURL = uploadedURL;
+                    } else {
+                        await postRequest({ mediaURL: uploadedURL, eventID: formData.eventID }, 'media/');
+                    }
+                }
+            }
+    
+            // Update formData with the correct thumbnail URL
+            formData.thumbnailURL = thumbnailURL;
+    
+            const res = await postRequest(formData, 'events');
+            console.log('Response:', res);
+    
+            if (res.ok) {
+                setLoading(true);
+                document.getElementById('submit-create-event-btn')?.classList.add('btn-disabled');
+                cleanUpFunc();
+                showCloseModal('create-event-success-modal', 'event-modal');
+            } else {
+                setLoading(false);
+                showCloseModal('create-event-failed-modal', 'event-modal');
+                document.getElementById('submit-create-event-btn')?.classList.remove('btn-disabled');
+            }
+        } catch (error) {
+            console.error('Error during file upload or post request:', error);
+            setLoading(false); // Ensure loading state is reset on error
+            showCloseModal('create-event-failed-modal', 'event-modal'); // Show failure modal
+            document.getElementById('submit-create-event-btn')?.classList.remove('btn-disabled');
+        }
+    }
+    
+
+    function handleEventChangeForm() {
+
+        if (((eventTitleCheck() && categoryCheck()) && (ticketTypeCheck() && detailsCheck())) && ( locationCheck() && seatsCheck() ) && fileCheck() ) {
+            document.getElementById('submit-create-event-btn')?.classList.remove('btn-disabled')
+        } else { 
+            document.getElementById('submit-create-event-btn')?.classList.add('btn-disabled')   
+        }
+    }
+
+    function closeSuccessModalRedirectTo() {
+        setLoading(false);
+        closeModal('create-event-success-modal')
+        router.push('/dashboard/organizer/')
+    }
+
+    function closeFailedModalCleanForm() {
+        setLoading(false);
+        closeModal('create-event-failed-modal')
+        cleanUpFunc()
+    }
+
+    function closeFailedModalRedirectTo() {
+        setLoading(false);
+        closeModal('create-event-failed-modal')
+        cleanUpFunc()
+        router.push('/dashboard/organizer/analytics')
+    }
+
+
     return (
-        <div className={`${className}`}>
-            <div className="flex justify-between gap-4 flex-col lg:flex-row">
+        <div>
+            <form id="create-event-form" className={`${className}`}>
+                <div className="flex justify-between gap-4 flex-col lg:flex-row">
 
-                {/* input */}
-                <div className="flex flex-col gap-4 w-full">
-                    <label className="input input-bordered flex items-center gap-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="w-4 h-4 opacity-70"><path d="M2.5 3A1.5 1.5 0 0 0 1 4.5v.793c.026.009.051.02.076.032L7.674 8.51c.206.1.446.1.652 0l6.598-3.185A.755.755 0 0 1 15 5.293V4.5A1.5 1.5 0 0 0 13.5 3h-11Z" /><path d="M15 6.954 8.978 9.86a2.25 2.25 0 0 1-1.956 0L1 6.954V11.5A1.5 1.5 0 0 0 2.5 13h11a1.5 1.5 0 0 0 1.5-1.5V6.954Z" /></svg>
-                        <input onChange={handleForm} ref={eventTitleRef} type="text" className="grow" placeholder="Event Name" />
-                    </label>
+                    <div className="flex flex-col gap-4 w-full">
 
-                    <label className="input input-bordered flex items-center gap-2">
+                        {/* name & category */}
+                        <div className="flex lg:flex-row flex-col gap-4">
+                            <div className="relative">
+                                <label className="input input-bordered flex items-center gap-2 w-full">
+                                    <div className="text-black/60">{ baloonSVG }</div>
+                                    <input ref={eventTitleRef} onChange={handleEventChangeForm} type="text" className="grow" placeholder="Event Name" />
+                                </label>
+                                <div className="label w-full sm:justify-start justify-start">
+                                    <span id="title-guard" className="label-text-alt text-black/60 hidden">minimum 10 characters</span>
+                                </div>
+                            </div>
 
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="w-4 h-4 opacity-70" viewBox="0 0 16 16"><path d="M4 10.781c.148 1.667 1.513 2.85 3.591 3.003V15h1.043v-1.216c2.27-.179 3.678-1.438 3.678-3.3 0-1.59-.947-2.51-2.956-3.028l-.722-.187V3.467c1.122.11 1.879.714 2.07 1.616h1.47c-.166-1.6-1.54-2.748-3.54-2.875V1H7.591v1.233c-1.939.23-3.27 1.472-3.27 3.156 0 1.454.966 2.483 2.661 2.917l.61.162v4.031c-1.149-.17-1.94-.8-2.131-1.718zm3.391-3.836c-1.043-.263-1.6-.825-1.6-1.616 0-.944.704-1.641 1.8-1.828v3.495l-.2-.05zm1.591 1.872c1.287.323 1.852.859 1.852 1.769 0 1.097-.826 1.828-2.2 1.939V8.73z"/></svg>
-                        <input onChange={handleForm} min={1} ref={priceRef} type="number" className="grow" placeholder="Price" />
-                    </label>
-                    
-                    <textarea onChange={handleForm} ref={detailsRef} className="textarea textarea-bordered" placeholder="Details"></textarea>
+                            <div className="lg:w-[70%] w-full">
+                                <select ref={categoryRef} onChange={handleEventChangeForm} className="select select-bordered w-full">
+                                    <option id="category-placeholder" className="">CATEGORY</option>
+                                    {
+                                        categoryArr.map((item, idx) => {
+                                            return <option key={idx}>{ item }</option>
+                                        })
+                                    }
+                                </select>
+                            </div>
 
-                    <select ref={locationRef} onChange={handleForm} className="select select-bordered w-full">
-                        <option id="location-placeholder" className="">Location</option>
-                        {
-                            locations.map((item, idx) => {
-                                return <option key={idx}>{ item }</option>
-                            })
-                        }
-                    </select>
-                    
-                    <label className="input input-bordered flex items-center gap-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="w-4 h-4 opacity-70" viewBox="0 0 16 16"><path d="M11 6.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5zm-3 0a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5zm-5 3a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5zm3 0a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5z"/><path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5M1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4z"/></svg>
-                        <input min="2024-05-01" ref={dateRef} onChange={handleForm} type="date" className="grow" placeholder="Date & Time" />
-                    </label>
-                    <label className="input input-bordered flex items-center gap-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="w-4 h-4 opacity-70" viewBox="0 0 16 16"><path d="M4 4.85v.9h1v-.9zm7 0v.9h1v-.9zm-7 1.8v.9h1v-.9zm7 0v.9h1v-.9zm-7 1.8v.9h1v-.9zm7 0v.9h1v-.9zm-7 1.8v.9h1v-.9zm7 0v.9h1v-.9z"/><path d="M1.5 3A1.5 1.5 0 0 0 0 4.5V6a.5.5 0 0 0 .5.5 1.5 1.5 0 1 1 0 3 .5.5 0 0 0-.5.5v1.5A1.5 1.5 0 0 0 1.5 13h13a1.5 1.5 0 0 0 1.5-1.5V10a.5.5 0 0 0-.5-.5 1.5 1.5 0 0 1 0-3A.5.5 0 0 0 16 6V4.5A1.5 1.5 0 0 0 14.5 3zM1 4.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 .5.5v1.05a2.5 2.5 0 0 0 0 4.9v1.05a.5.5 0 0 1-.5.5h-13a.5.5 0 0 1-.5-.5v-1.05a2.5 2.5 0 0 0 0-4.9z"/></svg>
-                        <input onChange={handleForm} min={1} ref={seatsRef} type="number" className="grow" placeholder="Seats" />
-                    </label>
+                        </div>
+
+                        {/* ticket type */}
+                        <div className="flex flex-col gap-1">
+                            <div className="flex gap-4">
+                                <label className="input input-bordered flex items-center gap-2 w-full">
+                                    <div className="text-black/60">{ ticketSVG }</div>
+                                    <input ref={ticketTypeRef} onChange={handleEventChangeForm} type="text" className="grow" placeholder="Ticket Type" />
+                                </label>
+                                <Button optionalFunc={addTicketType} className={""} svg={ plusSVG } ></Button>
+                            </div>
+                            <span className="text-black/60 flex">Ticket type: &nbsp;
+                                <div className="flex gap-1">
+                                    {
+                                        ticketData.map((item: { ticketType: string, price: number }, idx: number) => {
+                                            return <div key={idx} className="tooltip" data-tip={`remove ${item.ticketType}`}>
+                                                <span onClick={removeType} className="text-black cursor-pointer">
+                                                    <span>{ item.ticketType }</span>
+                                                    <span className="select-none">{ (idx + 1 === ticketData.length) ? '' : ' - ' }</span>
+                                                </span>
+                                            </div>
+                                        })
+                                    }
+                                </div>
+                            </span>
+                        </div>
+
+                        {/* price */}
+                        {ticketData.map((ticket: { ticketType: any; price: number }, idx: number) => (
+                            <div key={idx}>
+                                {/* Ticket type input */}
+                                <label className="input input-bordered flex items-center gap-2">
+                                    <span className="text-black/60">{`${ticket.ticketType} ticket`}</span>
+                                    {/* Price input */}
+                                    <input
+                                        type="number"
+                                        onChange={handleChangePrice(idx)}
+                                        className="grow"
+                                        placeholder={ticket.price > 0 ? ticket.price.toString() : 'free'}
+                                    />
+                                </label>
+                            </div>
+                        ))}
+                        
+                        {/* details */}
+                        <div className="relative w-full">
+                            <textarea onChange={handleEventChangeForm} ref={detailsRef} className="textarea textarea-bordered w-full" placeholder="Details"></textarea>
+                            <div className="label absolute top-2 right-2 flex justify-end w-fit">
+                                <span id="details-guard" className="label-text-alt text-black/40 hidden">minimum 30 characters</span>
+                            </div>
+                        </div>
+
+                        {/* location */}
+                        <select ref={locationRef} onChange={handleEventChangeForm} className="select select-bordered w-full">
+                            <option id="location-placeholder" className="">Location</option>
+                            {
+                                locationArr.map((item, idx) => {
+                                    return <option key={idx}>{ item }</option>
+                                })
+                            }
+                        </select>
+                        
+                        {/* calendar */}
+                        <label className="input input-bordered flex items-center gap-2">
+                            <div className="text-black/60">{ calendarSVG }</div>
+                            <input defaultValue={'2024-05-20'} min={`2024-05-20`} ref={dateRef} onChange={handleEventChangeForm} type="date" className="grow" placeholder="Date & Time" />
+                        </label>
+
+                        {/* available seats */}
+                        <div>
+                            <label className="input input-bordered flex items-center gap-2">
+                                <div className="text-black/60">{ peopleSVG }</div>
+                                <input onChange={handleEventChangeForm} min={10} ref={seatsRef} type="number" className="grow" placeholder="Seats" />
+                            </label>
+                            <div className="label w-full sm:justify-start justify-start">
+                                <span id="seats-guard" className="label-text-alt text-black/60 hidden">minimum 10 seats</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* media upload */}
+                    <div className="lg:w-[90%] w-full flex justify-between flex-col relative">
+                        <FileUpload files={files} setFiles={setFiles} />
+                        <div className="label w-full sm:justify-start justify-start absolute lg:-top-8 max-lg:-bottom-8">
+                            <span id="file-guard" className="label-text-alt text-black/60 hidden">minimum 1 media</span>
+                        </div>
+                    </div>
                 </div>
 
-                {/* TODO:  drag n drop media */}
-                <label className="input input-bordered flex items-center gap-2 lg:w-[150%] w-full">
-                    { playBtn }
-                    <input type="text" className="grow" placeholder="Media" />
-                </label>
-            </div>
+                {/* submit button */}
+                <div className="flex justify-end mt-8">
+                    <Button optionalFunc={submitCreateEvent} buttonID="submit-create-event-btn" className="btn bg-accent ">
+                        { loading ? 
+                            <span className="loading loading-spinner loading-md"></span>
+                            :
+                            ''
+                        }
+                        Create New Event
+                    </Button>
 
-            <div className="flex justify-end mt-8">
-                {/* <Button className="px-16 bg-accent" text="Create New Event" /> */}
-                <button ref={submitButtonRef} className="btn bg-accent" disabled>Create New Event</button>
-            </div>
+                </div>
+            </form>
+            <dialog id="create-event-failed-modal" className="modal">
+                <div className="modal-box flex flex-col items-center gap-4">
+                    {/* <div onClick={() => showCloseModal(`sign-up-modal-user`, 'sign-up-failed-modal')} className="absolute left-6 text-black/60 scale-125 cursor-pointer">
+                        { arrowLeftSVG } 
+                    </div> */}
+                    <h3 className="font-bold text-lg">Event Failed to create...</h3>
+                    <Image className="w-64" src={eventFailed} alt={'event failed to create'} />
+                    <p className="text-black/60">Our team is trying our best to fix it.</p>
+                    <Button optionalFunc={closeFailedModalRedirectTo} svg={analyticsSVG} className={'px-10 bg-black text-white/80 hover:text-black/80'}>See Analaytics Instead</Button>
+                </div>
+                <form method="dialog" className="modal-backdrop">
+                    <button onClick={closeFailedModalCleanForm}>close</button>
+                </form>
+            </dialog>
+            
+            {/* event successfully created modal */}
+            <dialog id="create-event-success-modal" className="modal">
+                <div className="modal-box flex flex-col items-center gap-4">
+                    <h3 className="font-bold text-lg">Event Successfully Created!</h3>
+                    <Image priority className="w-64" src={regSuc} alt={'event created modal'} />
+                    <p className="text-black/60">Now you can see your new event in the dashboard.</p>
+                    <Button optionalFunc={closeSuccessModalRedirectTo} svg={ arrowLeftSVG } className={'px-10 bg-accent'}>Manage Events</Button>
+                </div>
+                <form method="dialog" className="modal-backdrop">
+                    <button onClick={() => closeModal('create-event-success-modal')}>close</button>
+                </form>
+            </dialog>
+
         </div>
     )
 };

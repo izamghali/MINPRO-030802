@@ -1,11 +1,10 @@
 'use client'
+import { categoryArr, locationArr } from "@/helpers/dummyData";
 import { chevronDownSVG } from "@/helpers/svg"
 import React, { useState } from "react"
 
 export default function EventFilter() {
 
-    const testLocationArr = ['Bali', 'Bandung', 'Jakarta', 'Lombok', 'Palembang', 'Surabaya']
-    const testCategoryArr = ['Sports', 'Entertainment', 'Business']
     const [ location, setLocation ] = useState('location');
     const [ category, setCategory ] = useState('category')
 
@@ -22,7 +21,7 @@ export default function EventFilter() {
                         <span className="font-semibold underline-offset-4 underline text-black">{ location }</span>
                     </div>
                     <ul tabIndex={0} className="dropdown-content z-20 relative menu p-2 shadow bg-base-100 rounded-box w-52">
-                        { testLocationArr.map((item, idx) => {
+                        { locationArr.map((item, idx) => {
                                 return <div key={idx}>
                                     <li onClick={(e: any) => setLocation(e.target.innerText)}><a>{ item }</a></li>
                                 </div>
@@ -37,7 +36,7 @@ export default function EventFilter() {
                         <span className="font-semibold underline-offset-4 underline text-black">{ category }</span>
                     </div>
                     <ul tabIndex={0} className="dropdown-content z-20 relative menu p-2 shadow bg-base-100 rounded-box w-52">
-                        { testCategoryArr.map((item, idx) => {
+                        { categoryArr.map((item, idx) => {
                                 return <div key={idx}>
                                     <li onClick={(e: any) => setCategory(e.target.innerText)}><a>{ item }</a></li>
                                 </div>

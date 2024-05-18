@@ -15,7 +15,7 @@ export default function Page() {
     dispatchRouteEffect('Analytics')
 
     return (
-        // <Transition>
+        <Transition>
             <DashboardContentWrapper contentClassName=" bg-gradient-to-tl from-slate-300 w-full">
                 {/* <div className=" bg-gradient-to-br from-slate-300"></div> */}
 
@@ -37,6 +37,6 @@ export default function Page() {
                 {/* <Chart /> */}
 
             </DashboardContentWrapper>
-        // </Transition>
+        </Transition>
     )
 };

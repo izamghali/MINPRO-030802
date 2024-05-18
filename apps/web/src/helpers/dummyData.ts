@@ -236,3 +236,6 @@ export const countriesArray = [
     "Zambia",
     "Zimbabwe"
 ];
+
+export const locationArr = ['Bali', 'Bandung', 'Jakarta', 'Lombok', 'Palembang', 'Surabaya']
+export const categoryArr = [ 'ENTERTAINMENT', 'SPORTS', 'EDUCATION' ]

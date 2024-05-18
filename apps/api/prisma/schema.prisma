@@ -21,6 +21,12 @@ enum Status {
     CANCELLED
 }
 
+enum EventCategory {
+    ENTERTAINMENT
+    SPORTS
+    EDUCATION
+}
+
 model Organizer {
     id            String   @id
     organizerName String   @unique // NOTE:  organzier can't have the same name
@@ -55,23 +61,37 @@ model User {
 }
 
 model Event {
-    id             String     @id
-    organizerID    String     @unique
-    organizer      Organizer  @relation(fields: [organizerID], references: [id])
+    id             String           @id
+    organizerID    String
+    organizer      Organizer        @relation(fields: [organizerID], references: [id])
+    isActive       Boolean          @default(false)
     eventName      String
-    isActive       Boolean    @default(false)
+    category       EventCategory // FIX:  you might wanna change this to ENUM
     location       String
     date           DateTime
-    eventType      String // FIX:  you might wanna change this to ENUM
-    category       String // FIX:  you might wanna change this to ENUM
-    price          BigInt     @default(0)
-    details        String     @db.LongText
+    details        String           @db.LongText
     availableSeats Int
-    thumbnailUrl   String?    @db.LongText
-    createdAt      DateTime   @default(now())
+    thumbnailUrl   String?          @db.LongText
+    createdAt      DateTime         @default(now())
     Media          Media[]
     Review         Review[]
     Wishlist       Wishlist[]
+    EventTypePrice EventTypePrice[]
+}
+
+model Media {
+    id      String @id
+    eventID String
+    event   Event  @relation(fields: [eventID], references: [id])
+    url     String @db.LongText
+}
+
+model EventTypePrice {
+    id        String @id
+    eventType String
+    price     Int
+    eventID   String
+    event     Event  @relation(fields: [eventID], references: [id])
 }
 
 model Balance {
@@ -126,13 +146,6 @@ model Review {
     desc      String   @db.LongText
     rating    Int
     createdAt DateTime @default(now())
-}
-
-model Media {
-    id      Int    @id @default(autoincrement())
-    eventID String
-    event   Event  @relation(fields: [eventID], references: [id])
-    url     String @db.LongText
 }
 
 model TransactionPromo {
