@@ -1,5 +1,25 @@
+export function enableBtn(arr: any, btnRef: any) {
+    if (arr) {
+        btnRef.current?.classList.remove('btn-disabled')
+        return true;
+    } else {
+        btnRef.current?.classList.add('btn-disabled')
+        return false;
+    }
+}
+
+export function orgEnableBtn(arr: any, btnID: string) {
+    const btn = document.getElementById(btnID) as HTMLButtonElement;
+    if (arr) {
+        btn.classList.remove('btn-disabled')
+        return true;
+    } else {
+        btn.classList.add('btn-disabled')
+        return false;
+    }
+}
+
 import { passwordStrength } from "check-password-strength";
-import { enableBtn } from "./button.function";
 
 function nameCheck(elementValue: any) {
     const nameGuard = elementValue.parentElement.nextSibling.firstChild;
@@ -17,7 +37,7 @@ function nameCheck(elementValue: any) {
 export function handleChange(
     emailRef: any, passwordRef: any, confirmPasswordRef: any, 
     domainRef: any, nameRef: any, 
-    role: string, signupBtnRef: any
+    role: string
     ) {
     const emailValue = emailRef.current;
     const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
@@ -124,4 +144,63 @@ export function handleChange(
 
     let allTrues = trues.every(item => item == true);
     return allTrues
+}
+
+export function userCleanUpForm() {
+    console.log('cleaning up USER form...')
+    const userForm = document.getElementById('sign-up-form-user') as HTMLFormElement
+    const usernameGuard = document.getElementById('username-guard')
+    const userEmailValid = document.getElementById('user-email-valid')
+    const userDomain = document.getElementById('domain-placeholder-user');
+    const userGender = document.getElementById('gender-placeholder');
+    const userDOB = document.getElementById('user-dob');
+    const userReferral = document.getElementById('user-referral');
+    const userPasswordStr = document.getElementById('user-password-strength');
+    const userConfirmPass = document.getElementById('user-confirm-password');
+    const userSubmitBtn = document.getElementById('user-sign-up-submit-btn');
+
+    usernameGuard?.classList.add('hidden')
+    userEmailValid?.classList.add('hidden')
+
+    userDomain?.removeAttribute('disabled')
+    userDomain?.setAttribute('selected', 'selected')
+    
+    userGender?.removeAttribute('disabled')
+    userGender?.setAttribute('selected', 'selected')
+
+    userReferral?.classList.add('hidden')
+    userPasswordStr?.children[0].classList.add('hidden')
+    userPasswordStr?.children[1].classList.add('hidden')
+    userPasswordStr?.children[2].classList.add('hidden')
+    userPasswordStr?.children[3].classList.add('hidden')
+    userConfirmPass?.classList.add('hidden')
+    userSubmitBtn?.classList.add('btn-disabled')
+    userForm.reset()
+}
+
+export function orgCleanUpForm() {
+    const orgForm = document.getElementById('sign-up-form-organizer') as HTMLFormElement
+    const orgNameGuard = document.getElementById('org-name-guard');
+    const orgEmailValid = document.getElementById('org-email-valid');
+    const orgDomain = document.getElementById('domain-placeholder-organizer');
+    const orgPasswordStr = document.getElementById('org-password-strength');
+    const orgConfirmPass = document.getElementById('org-confirm-password');
+    const orgSubmitBtn = document.getElementById('org-sign-up-submit-btn');
+
+    orgNameGuard?.classList.add('hidden')
+    orgEmailValid?.classList.add('hidden')
+    orgDomain?.removeAttribute('disabled')
+    orgDomain?.setAttribute('selected', 'selected')
+    orgPasswordStr?.children[0].classList.add('hidden')
+    orgPasswordStr?.children[1].classList.add('hidden')
+    orgPasswordStr?.children[2].classList.add('hidden')
+    orgPasswordStr?.children[3].classList.add('hidden')
+    orgConfirmPass?.classList.add('hidden')
+    orgSubmitBtn?.classList.add('btn-disabled')
+    orgForm.reset()
+}
+
+export function cleanUpForms() {
+    userCleanUpForm()
+    orgCleanUpForm()
 }

@@ -8,31 +8,37 @@ export default function Modal(
         children, textBtn, 
         modalID, modalTitle, 
         modalClassName, buttonClassName, modalIDToClose,
-        btnSvg, formID
+        btnSvg, cleanUpFunc
     } : 
     { 
         children: any, textBtn?: string, 
         modalID: string, modalTitle: string, 
         modalClassName?: string, btnSvg?: any
         buttonClassName?: string, 
-        modalIDToClose?: string | any, formID?: string
+        modalIDToClose?: string | any, cleanUpFunc?: any
     }) {
         
     function showModal() {
-        showCloseModal(modalID, modalIDToClose)
+        if (modalIDToClose) {
+            showCloseModal(modalID, modalIDToClose)
+        } else {
+            (document.getElementById(modalID) as HTMLFormElement)?.showModal();
+        }
     }
 
     function handleResetForm(): void {
-        const form = (document.getElementById(`${ formID }`) as HTMLFormElement);
-        form?.reset()
+        if (cleanUpFunc) {
+            cleanUpFunc()
+        } else return
     }
 
     return (
         <div className="">
-            {/* Open the modal using document.getElementById('ID').showModal() method */}
 
-            <Button text={textBtn} onClickFunc={showModal} className={`${ buttonClassName }`} svg={btnSvg} />
-
+            <Button optionalFunc={showModal} className={`${ buttonClassName }`} svg={btnSvg} >
+                { textBtn }
+            </Button>
+            
             <dialog id={`${ modalID }`} className="modal">
                 <div className={`modal-box ${ modalClassName } sm:p-6 p-4`}>
                     <h3 className="font-bold text-lg sm:mb-8 mb-4">{ modalTitle }</h3>

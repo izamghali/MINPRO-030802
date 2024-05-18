@@ -1,17 +1,68 @@
-import React from "react"
+import React, { useState } from "react"
+import Button from "../Button"
+import { showCloseModal } from "@/helpers/modal.function"
+import { postRequest } from "@/helpers/request/fetchRequests"
+import { cleanUpForms, orgCleanUpForm } from "@/helpers/formHandling"
+import { arrowLeftSVG } from "@/helpers/svg"
+import Image from "next/image"
+import regFailed from '../../../public/illustrations/error.png'
 
 export default function SignUpOrganizerForm({ 
-    className, handleChangeFunc, passwordArr, refs, countriesArray, handleSubmitFunc
+    className, handleChangeFunc, passwordArr, refs, countriesArray, loading, setLoading,
+    signupBtnRef
     } : { 
     className: string, handleChangeFunc: any, passwordArr: any, refs: any, 
-    countriesArray: string[], handleSubmitFunc?: any
+    countriesArray: string[], loading: boolean, setLoading : any,
+    signupBtnRef: any
     }) {
 
+    const [ statusCode, setStatusCode ] = useState(0)
     const [ emailRef, nameRef, passwordRef, confirmPasswordRef, domainRef ] = refs
+
+    async function handleSubmit(e: any) {
+        e.preventDefault()
+        setLoading(true)
+        const orgData = {
+            organizerName: nameRef.current?.value,
+            email: emailRef.current?.value,
+            password: passwordRef.current?.value,
+            domain: domainRef.current?.value,
+        }
+
+        try {
+            const res = await postRequest(orgData, 'organizers')
+
+            console.log(res)
+        
+            if (res.ok) {
+                setLoading(false)
+                showCloseModal('sign-up-success-modal', 'sign-up-modal-organizer');
+                (document.getElementById('sign-up-failed-modal-org') as HTMLFormElement).close();
+                orgCleanUpForm()
+            } else {
+                setStatusCode(res.status)
+                setLoading(false)
+                showCloseModal('sign-up-failed-modal-org', 'sign-up-modal-organizer');
+            }
+
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    function showLoginModal(e: any) {
+        e.preventDefault()
+        showCloseModal('login-modal',`sign-up-modal-organizer`)
+    }
+    
+    function closeAndCleanFailedModal() {
+        cleanUpForms();
+        showCloseModal('', 'sign-up-failed-modal')
+    }
 
     return (
         <div className={``}>
-            <form id="sign-up-form-organizer" onSubmit={handleSubmitFunc} className={` ${className} `}>
+            <form id="sign-up-form-organizer" className={` ${className} `}>
 
                 {/* promotor name */}
                 <label className="input input-bordered flex items-center gap-2 w-full sign-up-form-parent-label">
@@ -20,7 +71,7 @@ export default function SignUpOrganizerForm({
                         <input ref={nameRef} onChange={handleChangeFunc} type="text" className="grow " placeholder="Promotor Name" />
                     </div>
                     <div className="label w-full sm:justify-end justify-start sign-up-form-outer-label">
-                        <span className="label-text-alt text-black hidden">minimum 6 characters</span>
+                        <span id="org-name-guard" className="label-text-alt text-black hidden">minimum 6 characters</span>
                     </div>
                 </label>
 
@@ -31,7 +82,7 @@ export default function SignUpOrganizerForm({
                         <input onChange={handleChangeFunc} ref={emailRef} type="text" className="grow" placeholder="Email" />
                     </div>
                     <div className="label w-full sm:justify-end justify-start sign-up-form-outer-label">
-                        <span className="label-text-alt text-green-400 hidden">Valid Email</span>
+                        <span id="org-email-valid" className="label-text-alt text-green-400 hidden">Valid Email</span>
                     </div>
                 </label>
 
@@ -52,9 +103,6 @@ export default function SignUpOrganizerForm({
                             }
                         </select>
                     </label>
-                    <div className="label w-full sm:justify-end justify-start sign-up-form-outer-label hidden">
-                        <span className="label-text-alt text-black">welcome</span>
-                    </div>
                 </div>
 
                 {/* password */}
@@ -63,7 +111,7 @@ export default function SignUpOrganizerForm({
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="w-4 h-4 opacity-70"><path fillRule="evenodd" d="M14 6a4 4 0 0 1-4.899 3.899l-1.955 1.955a.5.5 0 0 1-.353.146H5v1.5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1-.5-.5v-2.293a.5.5 0 0 1 .146-.353l3.955-3.955A4 4 0 1 1 14 6Zm-4-2a.75.75 0 0 0 0 1.5.5.5 0 0 1 .5.5.75.75 0 0 0 1.5 0 2 2 0 0 0-2-2Z" clipRule="evenodd" /></svg>
                         <input ref={passwordRef} onChange={handleChangeFunc} type="password" className="grow" placeholder="Password" />
                     </div>
-                    <div className="
+                    <div id="org-password-strength" className="
                     label w-full sign-up-form-outer-label justify-start sm:justify-end
                     ">
                         { passwordArr.map((item: { status: string, style: string }, idx: number) => {
@@ -79,12 +127,48 @@ export default function SignUpOrganizerForm({
                         <input ref={confirmPasswordRef} onChange={handleChangeFunc} type="password" className="grow" placeholder="Confirm Password" />
                     </div>
                     <div className="label w-full sign-up-form-outer-label justify-start sm:justify-end">
-                        <span className="label-text-alt text-green-400 hidden">Match</span>
+                        <span id="org-confirm-password" className="label-text-alt text-green-400 hidden">Match</span>
                     </div>
                 </label>
 
+                <p className="mt-4">By signing up, you agree to the&nbsp;
+                    <a className="underline cursor-pointer">Terms of Service</a>&nbsp; and&nbsp;
+                    <a className="underline cursor-pointer">Privacy Policy</a>, including&nbsp;
+                    <a className="underline cursor-pointer">Cookie Use</a>.
+                </p>
+
+                {/* submit button */}
+                <div className="flex flex-col justify-end mt-8 gap-2">
+                    <Button buttonID="org-sign-up-submit-btn" refName={signupBtnRef} optionalFunc={handleSubmit} className="w-full bg-accent btn-disabled" >
+                        { loading ? 
+                            <span className="loading loading-spinner loading-md"></span>
+                            :
+                            ''
+                        }
+                        Sign Up
+                    </Button>
+                    <p>Already have an account?&nbsp;
+                        <button onClick={showLoginModal} className="underline cursor-pointer">Login</button>
+                    </p>
+                </div>
+
             </form>
 
+            {/* registration failed modal */}
+            <dialog id="sign-up-failed-modal-org" className="modal">
+                <div className="modal-box flex flex-col items-center gap-4">
+                    <div onClick={() => showCloseModal(`sign-up-modal-organizer`, 'sign-up-failed-modal')} className="absolute left-6 text-black/60 scale-125 cursor-pointer">
+                        { arrowLeftSVG } 
+                    </div>
+                    <h3 className="font-bold text-lg">Registration failed!</h3>
+                    <Image className="w-64" src={regFailed} alt={'registration failed'} />
+                    <p className="text-black/60">{ statusCode !== 409 ? 'Please try again later.' : 'Email has been existed or username has been taken!' }</p>
+                    <Button optionalFunc={closeAndCleanFailedModal} className={'px-10 bg-black text-white/80 hover:text-black/80'}>Browse Instead</Button>
+                </div>
+                <form method="dialog" className="modal-backdrop">
+                    <button onClick={closeAndCleanFailedModal}>close</button>
+                </form>
+            </dialog>
         </div>
     )
 };

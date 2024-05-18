@@ -1,5 +1,3 @@
-
-
 export function closeModal(modalIDToClose: string) {
     (document.getElementById(modalIDToClose) as HTMLFormElement)?.close();
 }
