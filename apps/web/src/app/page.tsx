@@ -19,7 +19,7 @@ import regSuc from '../../public/illustrations/task-done.png'
 import SignUpOrganizerForm from '@/components/auth-components/SignUpOrganizerForm'
 import { countriesArray, passwordStyleArr } from '@/helpers/dummyData'
 import SignUpUserForm from '@/components/auth-components/SignUpUserForm'
-import gsap from 'gsap'
+import SpotifyPopUpCompact from '@/components/spotify/SpotifyPopUpCompact'
 
 export default function Home() {
 
@@ -70,20 +70,6 @@ export default function Home() {
     function cleanUpLogin() {
         (document.getElementById('login-form') as HTMLFormElement)?.reset()
     }
-
-    useEffect(() => {
-        const track = document.getElementById('spotify-track-1')
-        gsap.set('#spotify-track-1', {
-            x: '-25rem'
-        })
-
-        setTimeout(() => {
-            gsap.to('#spotify-track-1', {
-                x: '0rem', duration: 2
-            })
-            // track?.classList.remove('-translate-x-[25rem]')
-        }, 3000);
-    }, [])
 
     return (
         <main className={``}>
@@ -167,13 +153,11 @@ export default function Home() {
             </Navbar>
             <Hero/>
             <Events />
-            <iframe
-                id='spotify-track-1' 
-                className='rounded-md max-w-96 fixed bottom-4 left-4 z-40 lg:block'
-                src="https://open.spotify.com/embed/track/7AKxbxzkxm2ERWrd1ggniO?utm_source=generator&theme=0" 
-                width="100%" height="152" frameBorder="0" allowFullScreen 
-                allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy">    
-            </iframe>
+            <SpotifyPopUpCompact 
+                src={'https://open.spotify.com/embed/track/7AKxbxzkxm2ERWrd1ggniO?utm_source=generator&theme=0'} 
+                iframeID={'spotify-track-ichiko'} 
+                className={'bottom-4 left-4'} 
+            />
             <PromoBlock title='Discover Promos' />
             <Overview 
                 className={''} src={garbageImg1} 
