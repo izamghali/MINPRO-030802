@@ -1,6 +1,9 @@
 import { Router, Request, Response } from "express";
 import { serverResponse } from "./helpers/apiResponse";
 import { userRouter } from "./routers/user.router";
+import { eventRouter } from "./routers/event.router";
+import { organizerRouter } from "./routers/organizer.router";
+import { accountRouter } from "./routers/account.router";
 
 const apiRouter = Router();
 
@@ -13,5 +16,8 @@ apiRouter.get('/', (req: Request, res: Response) => {
 })
 
 apiRouter.use('/users', userRouter)
+apiRouter.use('/events', eventRouter)
+apiRouter.use('/organizers', organizerRouter)
+apiRouter.use('/accounts', accountRouter)
 
 export default apiRouter
