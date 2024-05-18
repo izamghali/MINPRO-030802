@@ -1,9 +1,12 @@
-export function enableBtn(arr: any, btnRef: any) {
-    if (arr) {
-        btnRef.current?.classList.remove('btn-disabled')
-        return true;
-    } else {
-        btnRef.current?.classList.add('btn-disabled')
-        return false;
+import clsx from "clsx";
+
+export class ButtonStyleChange {
+    isActive
+
+    constructor(pathnameHook: string, pathnameSegment: string, activeClassName: string, nonActiveClassName: string) {
+        this.isActive =  clsx({
+            [activeClassName]: pathnameHook === pathnameSegment,
+            [nonActiveClassName] : pathnameHook !== pathnameSegment
+        })
     }
 }
