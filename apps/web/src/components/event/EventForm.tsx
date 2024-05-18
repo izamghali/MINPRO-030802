@@ -9,7 +9,7 @@ import useStorage from "@/hooks/useStorage"
 import { closeModal, showCloseModal } from "@/helpers/modal.function"
 import Image from "next/image"
 import eventFailed from '../../../public/illustrations/fixing.png';
-import regSuc from '../../../public/illustrations/task-done.png';
+import todoList from '../../../public/illustrations/task-list.png';
 import { useRouter } from "next/navigation"
 import Cookies from "js-cookie"
 import { parseJwt } from "@/helpers/auth/token"
@@ -227,22 +227,8 @@ export default function EventForm({ className, ticketData, setTicketData, files,
         const payload = parseJwt(token);
         const orgID = payload.id;
         const eventID = uuid();
-    
-        const formData = {
-            eventTitle: eventTitleRef.current?.value || '',
-            eventID: eventID,
-            orgID: orgID,
-            details: detailsRef.current?.value || '',
-            location: locationRef.current?.value || '',
-            date: formattedDate, // Use the formatted date directly
-            seats: Number(seatsRef.current?.value) || 0, // Ensure seats is a number
-            tickets: ticketData,
-            category: categoryRef.current?.value || '',
-            thumbnailURL: thumbnailURL // This will be updated after file upload
-        };
-    
-        console.log('Initial data:', formData);
-    
+        
+        let mediaArr = []
         try {
             if (files.length === 1) {
                 thumbnailURL = await uploadFile(files[0]);
@@ -254,12 +240,30 @@ export default function EventForm({ className, ticketData, setTicketData, files,
                     if (i === 0) {
                         thumbnailURL = uploadedURL;
                     } else {
-                        await postRequest({ mediaURL: uploadedURL, eventID: formData.eventID }, 'media/');
+                        mediaArr.push(uploadedURL)
+                        // const res = await postRequest({ mediaURL: uploadedURL, eventID: formData.eventID }, 'media/');
+                        // const data = await res.json()
+                        // console.log('(web) => media post request', data)
                     }
                 }
             }
     
             // Update formData with the correct thumbnail URL
+            
+            const formData = {
+                eventTitle: eventTitleRef.current?.value || '',
+                eventID: eventID,
+                orgID: orgID,
+                details: detailsRef.current?.value || '',
+                location: locationRef.current?.value || '',
+                date: formattedDate, // Use the formatted date directly
+                seats: Number(seatsRef.current?.value) || 0, // Ensure seats is a number
+                tickets: ticketData,
+                category: categoryRef.current?.value || '',
+                thumbnailURL: thumbnailURL,// This will be updated after file upload
+                mediaArr: mediaArr
+            };
+            console.log('Initial data:', formData);
             formData.thumbnailURL = thumbnailURL;
     
             const res = await postRequest(formData, 'events');
@@ -464,7 +468,7 @@ export default function EventForm({ className, ticketData, setTicketData, files,
             <dialog id="create-event-success-modal" className="modal">
                 <div className="modal-box flex flex-col items-center gap-4">
                     <h3 className="font-bold text-lg">Event Successfully Created!</h3>
-                    <Image priority className="w-64" src={regSuc} alt={'event created modal'} />
+                    <Image priority className="w-64" src={todoList} alt={'event created modal'} />
                     <p className="text-black/60">Now you can see your new event in the dashboard.</p>
                     <Button optionalFunc={closeSuccessModalRedirectTo} svg={ arrowLeftSVG } className={'px-10 bg-accent'}>Manage Events</Button>
                 </div>

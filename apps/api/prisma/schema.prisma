@@ -73,17 +73,17 @@ model Event {
     availableSeats Int
     thumbnailUrl   String?          @db.LongText
     createdAt      DateTime         @default(now())
-    Media          Media[]
     Review         Review[]
     Wishlist       Wishlist[]
     EventTypePrice EventTypePrice[]
+    EventMedia     EventMedia[]
 }
 
-model Media {
+model EventMedia {
     id      String @id
+    url     String @db.LongText
     eventID String
     event   Event  @relation(fields: [eventID], references: [id])
-    url     String @db.LongText
 }
 
 model EventTypePrice {

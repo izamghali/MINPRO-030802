@@ -9,7 +9,7 @@ export const createEvent = async (req: Request, res: Response) => {
         const {
             eventID, orgID, eventTitle, 
             category, location, date,
-            details, seats, thumbnailURL, tickets
+            details, seats, thumbnailURL, tickets, mediaArr
         } = req.body
 
         // creating event
@@ -37,6 +37,17 @@ export const createEvent = async (req: Request, res: Response) => {
                     eventID: event.id
                 }
             });
+        }
+
+        for (const mediaURL of mediaArr) {
+            const media = await prisma.eventMedia.create({
+                data: {
+                    id: uuid(),
+                    eventID: event.id,
+                    url: mediaURL
+                }
+            })
+            console.log(media)
         }
 
         console.log('(api): event', event)
