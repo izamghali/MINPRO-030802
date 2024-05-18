@@ -1,12 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 
-type InitialState = {
-    value: {
-        currentAccount: any
-    }
-}
-
-const initialState: InitialState = {
+const initialState: any = {
     value: { 
         currentAccount: {},
     }
@@ -23,9 +17,15 @@ export const authSlice = createSlice({
                 }
             }
         },
+        clearCurrentAccount: () => {
+            return {
+                value: {
+                    currentAccount: {}
+                }
+            }
+        }
     }
 })
 
-
-export const { setCurrentAccount } = authSlice.actions
+export const { setCurrentAccount, clearCurrentAccount } = authSlice.actions
 export default authSlice.reducer;
