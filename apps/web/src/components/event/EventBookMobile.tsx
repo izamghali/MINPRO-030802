@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react"
 import Button from "../Button"
 import EventAdmissionTicket from "./EventAdmissionTicket"
 
-export default function EventBookMobile({ buttonFunc, buttonText }: { buttonFunc: any, buttonText:string }) {
+export default function EventBookMobile({ buttonFunc, buttonText, className }: { buttonFunc: any, buttonText:string, className: string }) {
 
     const [ prevScrollpos, setPrevScrollpos ] = useState(0)
 
@@ -33,7 +33,7 @@ export default function EventBookMobile({ buttonFunc, buttonText }: { buttonFunc
     }, [prevScrollpos])
 
     return (
-        <div id="book-button" className="fixed flex-col justify-between flex items-end p-4 duration-200 lg:hidden bottom-0 left-0 h-64 w-full rounded-t-xl z-20 border-2 border-black/60 bg-white ">
+        <div id="book-button" className={`fixed flex-col ${className} justify-between flex items-end p-4 duration-200 bottom-0 left-0 h-64 w-full rounded-t-xl z-20 border-2 border-black/60 bg-white `}>
             
             <div className="flex flex-col gap-4 mt-4 w-full">
                 <EventAdmissionTicket />

@@ -31,7 +31,7 @@ export default function SearchResultPage() {
     ]
 
     return (
-        <div className=" flex flex-col gap-4">
+        <div className=" flex flex-col gap-4 border-2 border-orange-400 bg-gradient-to-t">
             { testSearchResult.map((item, idx) => {
                 return <div key={idx}>
                     <SearchUnit redirect='/homepage/event/1' className="w-full" img={item.img} width={item.width} height={item.height} desc={item.desc} title={item.title} />

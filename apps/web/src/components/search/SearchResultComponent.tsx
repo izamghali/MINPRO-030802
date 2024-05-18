@@ -30,6 +30,7 @@ export default function SearchResultComponent(params : { params: { eventID: stri
                 </div>
             </div>
             
+            {/* pagination */}
             <div className="w-full flex justify-center">
                 <div className="join grid grid-cols-2 max-w-96">
                     <button className="join-item btn btn-outline">Previous page</button>

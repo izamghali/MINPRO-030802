@@ -7,7 +7,7 @@ export default function EventSlugComponent({ params, buttonText, buttonFunc } : 
 
     return (
             // p-4 lg:p-6
-            <div className=" lg:px-52 px-4 py-10 flex flex-col gap-8">
+            <div className=" lg:px-32 xl:px-52 md:px-20 px-4 sm:px-10 py-10 flex flex-col gap-8 duration-200">
                 {/* img */}
                 <div className="h-96 rounded-md overflow-hidden relative">
                     <Image priority
@@ -47,12 +47,18 @@ export default function EventSlugComponent({ params, buttonText, buttonFunc } : 
                     </div>
 
                     {/* book event */}
-                    <div className="w-full justify-end hidden lg:flex">
-                        <BookEvent buttonFunc={buttonFunc} buttonText={buttonText} />
+                    <div className="w-full h-fit justify-endhidden md:flex">
+                        <BookEvent 
+                            buttonFunc={buttonFunc} buttonText={buttonText} 
+                            className={"hidden md:flex"} 
+                        />
                     </div>
                     
                     {/* book event mobile */}
-                    <EventBookMobile buttonFunc={buttonFunc} buttonText={buttonText} />
+                    <EventBookMobile 
+                        className={"md:hidden"}
+                        buttonFunc={buttonFunc} buttonText={buttonText} 
+                    />
                 </div>
             </div>
 
