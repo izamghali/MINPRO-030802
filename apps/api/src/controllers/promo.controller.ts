@@ -1,15 +1,44 @@
 import { serverResponse } from "@/helpers/apiResponse";
-import { PrismaClient } from "@prisma/client"
 import { Request, Response } from "express";
 import prisma from "@/prisma";
+import { v4 as uuid } from 'uuid'
 
-export const createPromo = (req: Request, res: Response) => {
+export const createPromo = async (req: Request, res: Response) => {
     try {
-        serverResponse(res, 200, 'ok', 'creating promo...')
-    } catch (error:any) {
-        serverResponse(res, 400, 'error', error)
+        const { organizerID, eventID, promoName, details, discount, imgUrl, expireAt, startAt } = req.body;
+
+        const promo = await prisma.promo.create({
+            data: {
+                id: uuid(),
+                organizerID,
+                promoName,
+                details,
+                discount: Number(discount),
+                imgUrl,
+                expireAt: new Date(expireAt), // Convert string to Date object
+                startAt: new Date(startAt)     // Convert string to Date object
+            }
+        });
+
+        if (eventID) {
+            await prisma.event.update({
+                where: { id: eventID}, 
+                data: { promoID: promo.id }
+            })
+
+            await prisma.promo.update({
+                where: { id: promo.id }, 
+                data: { isAny: false }
+            })
+        }
+
+        serverResponse(res, 200, 'ok', 'Promo created successfully', promo);
+    } catch (error) {
+        console.error("Error creating promo:", error);
+        serverResponse(res, 500, 'error', 'Failed to create promo');
     }
 }
+
 
 export const getPromos = (req: Request, res: Response) => {
 

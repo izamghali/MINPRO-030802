@@ -66,7 +66,7 @@ model Event {
     organizer      Organizer        @relation(fields: [organizerID], references: [id])
     isActive       Boolean          @default(false)
     eventName      String
-    category       EventCategory // FIX:  you might wanna change this to ENUM
+    category       EventCategory
     location       String
     date           DateTime
     details        String           @db.LongText
@@ -77,6 +77,24 @@ model Event {
     Wishlist       Wishlist[]
     EventTypePrice EventTypePrice[]
     EventMedia     EventMedia[]
+    promoID        String? // optional promo
+    promo          Promo?           @relation(fields: [promoID], references: [id])
+}
+
+model Promo {
+    id               String             @id
+    organizerID      String
+    organizer        Organizer          @relation(fields: [organizerID], references: [id])
+    events           Event[] // event that is associated with the promo
+    isAny            Boolean            @default(true)
+    promoName        String
+    details          String             @db.LongText
+    discount         Int
+    imgUrl           String             @db.LongText
+    expireAt         DateTime
+    startAt          DateTime
+    issuedAt         DateTime           @default(now())
+    TransactionPromo TransactionPromo[]
 }
 
 model EventMedia {
@@ -103,23 +121,10 @@ model Balance {
     issuedAt DateTime  @default(now())
 }
 
-model Promo {
-    id               Int                @id @default(autoincrement())
-    organizerID      String
-    organizer        Organizer          @relation(fields: [organizerID], references: [id])
-    promoName        String
-    eventID          Int
-    discount         Int
-    imgUrl           String             @db.LongText
-    expireAt         DateTime
-    issuedAt         DateTime           @default(now())
-    TransactionPromo TransactionPromo[]
-}
-
 model Transaction {
-    id               Int                @id @default(autoincrement())
-    eventID          Int
-    userID           Int
+    id               String             @id
+    eventID          String
+    userID           String
     seatsOrdered     Int
     totalDiscount    Int
     status           Status
@@ -149,9 +154,9 @@ model Review {
 }
 
 model TransactionPromo {
-    id            Int         @id @default(autoincrement())
-    transactionID Int
-    promoID       Int
+    id            String      @id
+    transactionID String
+    promoID       String
     transaction   Transaction @relation(fields: [transactionID], references: [id])
     promo         Promo       @relation(fields: [promoID], references: [id])
 }

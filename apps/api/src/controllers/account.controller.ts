@@ -1,5 +1,4 @@
 import { serverResponse } from "@/helpers/apiResponse";
-import { PrismaClient } from "@prisma/client"
 import { compare } from "bcrypt";
 import { Request, Response } from "express";
 import { sign } from "jsonwebtoken";
@@ -44,9 +43,9 @@ export const keepLogin = async (req: Request, res: Response) => {
             const user = await prisma.user.findFirst({
                 where: { id: req.body.user?.id }
             })
-            serverResponse(res, 200, 'ok', 'keep login', user)
+            return serverResponse(res, 200, 'ok', 'keep login', user)
         } else {
-            serverResponse(res, 200, 'ok', 'keep login', organizer)
+            return serverResponse(res, 200, 'ok', 'keep login', organizer)
         }
 
     } catch (error: any) {

@@ -5,6 +5,7 @@ import { eventRouter } from "./routers/event.router";
 import { organizerRouter } from "./routers/organizer.router";
 import { accountRouter } from "./routers/account.router";
 import { mediaRouter } from "./routers/media.router";
+import { promoRouter } from "./routers/promo.router";
 
 const apiRouter = Router();
 
@@ -21,5 +22,6 @@ apiRouter.use('/events', eventRouter)
 apiRouter.use('/organizers', organizerRouter)
 apiRouter.use('/accounts', accountRouter)
 apiRouter.use('/media', mediaRouter)
+apiRouter.use('/promo', promoRouter)
 
 export default apiRouter

@@ -78,6 +78,24 @@ export const getEvents = async (req: Request, res: Response) => {
     }
 }
 
+export const fetchEventByOrganizerID = async (req: Request, res: Response) => {
+    try {
+        const event = await prisma.event.findMany({
+            where: { organizerID: req.params.orgID }
+        })
+
+        if (!event) {
+            return serverResponse(res, 400, 'error', 'event not found!')
+        } else {
+            return serverResponse(res, 200, 'ok', 'event found!', event);
+        }
+
+        
+    } catch (error: any) {
+        serverResponse(res, 400, 'error', error)
+    }
+}
+
 export const getEventById = async (req: Request, res: Response) => {
     try {
         const event = await prisma.event.findFirst({
