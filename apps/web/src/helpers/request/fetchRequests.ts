@@ -19,3 +19,13 @@ export async function getRequest(data: any, segment: string) {
     })
     return res;
 }
+
+export async function getEventsByOrganizer(token: string | undefined, orgID: string) {
+    try {
+        const res = await getRequest(token, `events/${orgID}`);
+        const data = await res.json();
+        return data.data
+    } catch (error) {
+        console.log(error)
+    }
+}

@@ -213,3 +213,9 @@ export function eventCleanUpForm(){
 
     form.reset()
 }
+
+export function cleanUpPromoForm() {
+    const form = document.getElementById('promo-form') as HTMLFormElement;
+
+    form.reset()
+}

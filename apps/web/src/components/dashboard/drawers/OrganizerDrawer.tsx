@@ -1,6 +1,6 @@
 'use client'
 import { calendarSVG, profileSVG, analyticsSVG, percentSVG, plusSVG, headsetSVG } from "@/helpers/svg"
-import React from "react"
+import React, { useState } from "react"
 import Drawer from "../../Drawer"
 import SidebarMenuBtn from "../../SidebarMenuBtn"
 import { usePathname } from "next/navigation"
@@ -9,9 +9,11 @@ import Modal from "../../Modal"
 import PromoForm from "../../promo/PromoForm"
 import OrganizerNav from "../navbar/OrganizerNav"
 import { useAppSelector } from "@/redux/store"
+import { cleanUpPromoForm } from "@/helpers/formHandling"
 
 export default function OrganizerDrawer({ children }: { children: React.ReactNode }) {
 
+    const [ file, setFile ] = useState<File|null>(null);
     const testNumberEvent = 88
     const pathname = usePathname();
     const title = useAppSelector((state) => state.dashboardTitleReducer.value.title)
@@ -24,6 +26,11 @@ export default function OrganizerDrawer({ children }: { children: React.ReactNod
 
     // underwater
     const srcDrawerImgBgOrganizer = 'https://images.pexels.com/photos/4666754/pexels-photo-4666754.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2'
+
+    function cleanUpForm() {
+        cleanUpPromoForm()
+        setFile(null)
+    }
 
     return (
         <Drawer 
@@ -89,8 +96,10 @@ export default function OrganizerDrawer({ children }: { children: React.ReactNod
                         textBtn="Create New Promo" btnSvg={plusSVG}
                         buttonClassName="z-10 relative w-full bg-white border-none mt-80" 
                         modalClassName="lg:max-w-[60rem]"
-                        modalID={"create-promo-modal"} modalTitle={"New Promo"}>
-                        <PromoForm className={""} />
+                        modalID={"create-promo-modal"} modalTitle={"New Promo"}
+                        cleanUpFunc={cleanUpForm}
+                    >
+                        <PromoForm file={file} setFile={setFile}  className={""} cleanUpFunc={cleanUpPromoForm} />
                     </Modal>
                 </div>
             </ul>

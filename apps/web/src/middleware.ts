@@ -6,6 +6,7 @@ export function middleware(req: NextRequest) {
     const tokenCookie = req.cookies.get('token'); // Get the cookie object
     const token = tokenCookie ? tokenCookie.value : null;
     const url = req.nextUrl.pathname;
+    const decoded = parseJwt(token);
 
     // public routes
     const publicPaths = ['/'];
@@ -14,15 +15,12 @@ export function middleware(req: NextRequest) {
         return NextResponse.next();
     }
 
-    if (!token) {
+    if (!token) { // check if token is expired
         return NextResponse.redirect(new URL(`/`, req.url));
     }
 
     try {
-        // Verify token
-        const decoded = parseJwt(token);
-        // console.log('(next.js middleware) decoded:', decoded)
-
+        
         // protecting routes
         if (pathname.startsWith('/dashboard/organizer')) {
             if (decoded.isOrg !== true) {
@@ -48,7 +46,7 @@ export function middleware(req: NextRequest) {
                     return NextResponse.redirect(new URL('/', req.url));
                 }
             }
-        }
+        } 
 
     } catch (err) {
         // Token verification failed, redirect to login

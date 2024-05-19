@@ -27,9 +27,7 @@ export default function EventForm({ className, ticketData, setTicketData, files,
     const dateRef = useRef<HTMLInputElement>(null)
     const seatsRef = useRef<HTMLInputElement | any>(null)
     const locationRef = useRef<HTMLSelectElement>(null)
-
     const ticketTypeRef = useRef<HTMLInputElement>(null)
-    // const [ ticketData, setTicketData ] = useState<{ ticketType: string, price: number }[]>([]);
 
     useEffect(() => {
         // render if ticketTypes change
@@ -65,154 +63,119 @@ export default function EventForm({ className, ticketData, setTicketData, files,
         updatedPrices[index].price = Number(value);
     };
 
-    function eventTitleCheck(){
-        let eventTitleValue = eventTitleRef.current;
-        
-        if (eventTitleValue?.value && eventTitleValue?.value.length > 10) {
-            document.getElementById('title-guard')?.classList.add('hidden')
-            return true;
-        } else {
-            document.getElementById('title-guard')?.classList.remove('hidden')
-            return false
+    function formCheck() {
+        function eventTitleCheck() {
+            let eventTitleValue = eventTitleRef.current;
+            
+            if (eventTitleValue?.value && eventTitleValue?.value.length > 10) {
+                document.getElementById('title-guard')?.classList.add('hidden')
+                return true;
+            } else {
+                document.getElementById('title-guard')?.classList.remove('hidden')
+                return false
+            }
         }
+    
+        function categoryCheck() {
+            const selectedValue = categoryRef.current?.value;
+            const cat = document.getElementById('category-placeholder')
+            cat?.setAttribute('disabled', 'disabled')
+            if (selectedValue === 'CATEGORY') {
+                return false
+            } else {
+                return true
+            }
+        }
+    
+        function ticketTypeCheck() {
+            if (ticketData.length < 3 && ticketData.length > 0) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+    
+        function detailsCheck() {
+            const details = detailsRef.current?.value ?? ''; // Default to an empty string if undefined
+    
+            if (details.length > 29) {
+                document.getElementById('details-guard')?.classList.add('hidden')
+                return true;
+            } else {
+                document.getElementById('details-guard')?.classList.remove('hidden')
+                return false;
+            }
+        }
+    
+        function locationCheck() {
+            const loc = document.getElementById('location-placeholder')
+            const locVal = locationRef.current?.value
+            loc?.setAttribute('disabled', 'disabled')
+    
+            if (locVal === 'Location') {
+                return false;
+            } else {
+                return true;
+            }
+        }
+    
+        function seatsCheck() {
+            const seats = seatsRef.current.value;
+            const guard = document.getElementById('seats-guard')
+    
+            if (seats > 9) {
+                guard?.classList.add('hidden')
+                return true
+            } else {
+                guard?.classList.remove('hidden')
+                return false
+            }
+            
+        }
+    
+        function fileCheck() {
+            const guard  = document.getElementById('file-guard');
+            if (files.length > 0) {
+                guard?.classList.add('hidden')
+                return true;
+            } else {
+                guard?.classList.remove('hidden')
+                return false;
+            }
+        }
+        return [ eventTitleCheck, categoryCheck, ticketTypeCheck, detailsCheck, locationCheck, seatsCheck, fileCheck ]
     }
 
-    function categoryCheck() {
-        const selectedValue = categoryRef.current?.value;
-        const cat = document.getElementById('category-placeholder')
-        cat?.setAttribute('disabled', 'disabled')
-        if (selectedValue === 'CATEGORY') {
-            return false
-        } else {
-            return true
+    function closeCleanForm() {
+
+        function closeSuccessModalRedirectTo() {
+            setLoading(false);
+            closeModal('create-event-success-modal')
+            router.push('/dashboard/organizer/')
         }
+    
+        function closeFailedModalCleanForm() {
+            setLoading(false);
+            closeModal('create-event-failed-modal')
+            cleanUpFunc()
+        }
+    
+        function closeFailedModalRedirectTo() {
+            setLoading(false);
+            closeModal('create-event-failed-modal')
+            cleanUpFunc()
+            router.push('/dashboard/organizer/analytics')
+        }
+        return [ closeSuccessModalRedirectTo, closeFailedModalCleanForm, closeFailedModalRedirectTo ]
     }
 
-    function ticketTypeCheck() {
-        if (ticketData.length < 3 && ticketData.length > 0) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    function detailsCheck() {
-        const details = detailsRef.current?.value ?? ''; // Default to an empty string if undefined
-
-        if (details.length > 29) {
-            document.getElementById('details-guard')?.classList.add('hidden')
-            return true;
-        } else {
-            document.getElementById('details-guard')?.classList.remove('hidden')
-            return false;
-        }
-    }
-
-    function locationCheck() {
-        const loc = document.getElementById('location-placeholder')
-        const locVal = locationRef.current?.value
-        loc?.setAttribute('disabled', 'disabled')
-
-        if (locVal === 'Location') {
-            return false;
-        } else {
-            return true;
-        }
-    }
-
-    function seatsCheck() {
-        const seats = seatsRef.current.value;
-        const guard = document.getElementById('seats-guard')
-
-        if (seats > 9) {
-            guard?.classList.add('hidden')
-            return true
-        } else {
-            guard?.classList.remove('hidden')
-            return false
-        }
-        
-    }
-
-    function fileCheck() {
-        const guard  = document.getElementById('file-guard');
-        if (files.length > 0) {
-            guard?.classList.add('hidden')
-            return true;
-        } else {
-            guard?.classList.remove('hidden')
-            return false;
-        }
-    }
-
-    // async function submitCreateEvent(event: any) {
-    //     event.preventDefault();
-    //     const date = dateRef.current?.value;
-    //     if (date) {
-    //         const [year, month, day] = date.split('-');
-    //         const formattedDate = new Date(Number(year), Number(month) - 1, Number(day));
-    //         setEventDate(formattedDate)
-    //     }
-
-    //     let thumbnailURL = '';
-
-    //     const token = Cookies.get('token')
-    //     const payload = parseJwt(token);
-    //     const orgID = payload.id
-    //     const eventID = uuid();
-
-    //     try {
-    //         if (files.length === 1) {
-    //             thumbnailURL = await uploadFile(files[0]);
-    //         } else if (files.length > 1) {
-    //             for (let i = 0; i < files.length; i++) {
-    //                 const file = files[i];
-    //                 const uploadedURL = await uploadFile(file);
-                    
-    //                 if (i === 0) {
-    //                     thumbnailURL = uploadedURL;
-    //                 } else {
-    //                     await postRequest({ mediaURL: uploadedURL, eventID }, 'media/');
-    //                 }
-    //             }
-    //         }
-
-    //         const formData = {
-    //             eventTitle: eventTitleRef.current?.value || '',
-    //             eventID: eventID,
-    //             orgID: orgID,
-    //             details: detailsRef.current?.value || '',
-    //             location: locationRef.current?.value || '',
-    //             date: eventDate,
-    //             seats: Number(seatsRef.current?.value) || '',
-    //             tickets: ticketData,
-    //             category: categoryRef.current?.value,
-    //             thumbnailURL: thumbnailURL
-    //         };
-    //         console.log('data:', formData)
-
-    //         const res = await postRequest(formData, 'events')
-    //         console.log(res)
-
-    //         if (res.ok) {
-    //             setLoading(true);
-    //             document.getElementById('submit-create-event-btn')?.classList.add('btn-disabled')
-    //             cleanUpFunc();
-    //             showCloseModal('create-event-success-modal', 'event-modal')
-    //         } else {
-    //             setLoading(true)
-    //             showCloseModal('create-event-failed-modal', 'event-modal')
-    //             document.getElementById('submit-create-event-btn')?.classList.remove('btn-disabled')
-    //         }
-
-    //     } catch (error) {
-    //         console.error('Error during file upload or post request:', error);
-    //         throw error; 
-    //     }
-    // }
+    const [ eventTitleCheck, categoryCheck, ticketTypeCheck, detailsCheck, locationCheck, seatsCheck, fileCheck ] = formCheck()
+    const [ closeSuccessModalRedirectTo, closeFailedModalCleanForm, closeFailedModalRedirectTo ] = closeCleanForm()
 
     async function submitCreateEvent(event: any) {
         event.preventDefault();
+        setLoading(true);
+        document.getElementById('submit-create-event-btn')?.classList.add('btn-disabled');
         const date = dateRef.current?.value;
         let formattedDate;
     
@@ -241,9 +204,6 @@ export default function EventForm({ className, ticketData, setTicketData, files,
                         thumbnailURL = uploadedURL;
                     } else {
                         mediaArr.push(uploadedURL)
-                        // const res = await postRequest({ mediaURL: uploadedURL, eventID: formData.eventID }, 'media/');
-                        // const data = await res.json()
-                        // console.log('(web) => media post request', data)
                     }
                 }
             }
@@ -263,22 +223,18 @@ export default function EventForm({ className, ticketData, setTicketData, files,
                 thumbnailURL: thumbnailURL,// This will be updated after file upload
                 mediaArr: mediaArr
             };
-            console.log('Initial data:', formData);
             formData.thumbnailURL = thumbnailURL;
     
             const res = await postRequest(formData, 'events');
-            console.log('Response:', res);
     
             if (res.ok) {
-                setLoading(true);
-                document.getElementById('submit-create-event-btn')?.classList.add('btn-disabled');
-                cleanUpFunc();
                 showCloseModal('create-event-success-modal', 'event-modal');
+                cleanUpFunc();
             } else {
-                setLoading(false);
                 showCloseModal('create-event-failed-modal', 'event-modal');
-                document.getElementById('submit-create-event-btn')?.classList.remove('btn-disabled');
+                // document.getElementById('submit-create-event-btn')?.classList.remove('btn-disabled');
             }
+            setLoading(false);
         } catch (error) {
             console.error('Error during file upload or post request:', error);
             setLoading(false); // Ensure loading state is reset on error
@@ -287,7 +243,6 @@ export default function EventForm({ className, ticketData, setTicketData, files,
         }
     }
     
-
     function handleEventChangeForm() {
 
         if (((eventTitleCheck() && categoryCheck()) && (ticketTypeCheck() && detailsCheck())) && ( locationCheck() && seatsCheck() ) && fileCheck() ) {
@@ -296,26 +251,6 @@ export default function EventForm({ className, ticketData, setTicketData, files,
             document.getElementById('submit-create-event-btn')?.classList.add('btn-disabled')   
         }
     }
-
-    function closeSuccessModalRedirectTo() {
-        setLoading(false);
-        closeModal('create-event-success-modal')
-        router.push('/dashboard/organizer/')
-    }
-
-    function closeFailedModalCleanForm() {
-        setLoading(false);
-        closeModal('create-event-failed-modal')
-        cleanUpFunc()
-    }
-
-    function closeFailedModalRedirectTo() {
-        setLoading(false);
-        closeModal('create-event-failed-modal')
-        cleanUpFunc()
-        router.push('/dashboard/organizer/analytics')
-    }
-
 
     return (
         <div>
@@ -449,11 +384,13 @@ export default function EventForm({ className, ticketData, setTicketData, files,
 
                 </div>
             </form>
+
+            {/* event failed to create (modal) */}
             <dialog id="create-event-failed-modal" className="modal">
                 <div className="modal-box flex flex-col items-center gap-4">
-                    {/* <div onClick={() => showCloseModal(`sign-up-modal-user`, 'sign-up-failed-modal')} className="absolute left-6 text-black/60 scale-125 cursor-pointer">
+                    <div onClick={() => showCloseModal(`event-modal`, 'create-event-failed-modal')} className="absolute left-6 text-black/60 scale-125 cursor-pointer">
                         { arrowLeftSVG } 
-                    </div> */}
+                    </div>
                     <h3 className="font-bold text-lg">Event Failed to create...</h3>
                     <Image className="w-64" src={eventFailed} alt={'event failed to create'} />
                     <p className="text-black/60">Our team is trying our best to fix it.</p>
@@ -464,7 +401,7 @@ export default function EventForm({ className, ticketData, setTicketData, files,
                 </form>
             </dialog>
             
-            {/* event successfully created modal */}
+            {/* event successfully created (modal) */}
             <dialog id="create-event-success-modal" className="modal">
                 <div className="modal-box flex flex-col items-center gap-4">
                     <h3 className="font-bold text-lg">Event Successfully Created!</h3>

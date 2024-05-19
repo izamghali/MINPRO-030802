@@ -38,7 +38,8 @@ export default function FileUpload({ files, setFiles } : { files: any, setFiles:
             />
             <span className='text-black/60'>*
                 <span className='text-black font-semibold'>Preferred format</span>: <br/> 
-                webm for video - avif for image
+                webm for video - avif for image <br/>
+                <span>landscape orientation is recommended</span>
             </span>
             <div className='border-2 border-black/60 border-dashed rounded-md p-4 flex flex-col gap-4 overflow-y-scroll'>
                 { files ? 'Preview:' : '' }

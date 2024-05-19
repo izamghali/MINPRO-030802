@@ -25,7 +25,7 @@ export default function Page() {
     const nextPath = useAppSelector((state) => state.pageNavReducer.value.current)
 
     return (
-        <Transition>
+        // <Transition>
             <main className="">
                 <DashboardContentWrapper
                     contentClassName={""}>
@@ -48,7 +48,7 @@ export default function Page() {
                 </DashboardContentWrapper>
 
             </main>
-        </Transition>
+        // </Transition>
     )
 };
 
